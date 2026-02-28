@@ -1,0 +1,36 @@
+# ── .NET build artifacts ──────────────────────────────────────────────────
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+.vs/
+*.log
+
+# .NET publish
+publish/
+[Pp]ublish/
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/
+
+# ── Node / Vite ───────────────────────────────────────────────────────────
+node_modules/
+dist/
+.env.local
+.env.*.local
+
+# ── Test output ───────────────────────────────────────────────────────────
+TestResults/
+coverage/
+.nyc_output/
+
+# ── macOS ─────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── IDEs ─────────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.sln.iml
