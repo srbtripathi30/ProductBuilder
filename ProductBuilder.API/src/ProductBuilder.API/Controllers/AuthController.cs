@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -99,6 +100,61 @@ public class AuthController : ControllerBase
                 Role = token.User.Role.Name
             }
         });
+    }
+
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
+    {
+        var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == request.Email && u.IsActive);
+        if (user == null)
+            return Ok(new { message = "If that email is registered, a reset token has been generated." });
+
+        // Invalidate any existing unused tokens for this user
+        var existing = await _db.PasswordResetTokens
+            .Where(t => t.UserId == user.Id && t.UsedAt == null)
+            .ToListAsync();
+        foreach (var t in existing)
+            t.UsedAt = DateTime.UtcNow;
+
+        var rawToken = Convert.ToHexString(RandomNumberGenerator.GetBytes(32)).ToLower();
+        _db.PasswordResetTokens.Add(new PasswordResetToken
+        {
+            UserId = user.Id,
+            Token = rawToken,
+            ExpiresAt = DateTime.UtcNow.AddHours(1)
+        });
+        await _db.SaveChangesAsync();
+
+        // No email service in this environment — token is returned directly
+        return Ok(new { message = "Reset token generated.", resetToken = rawToken });
+    }
+
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
+    {
+        var prt = await _db.PasswordResetTokens
+            .Include(t => t.User)
+            .FirstOrDefaultAsync(t => t.Token == request.Token);
+
+        if (prt == null || !prt.IsValid)
+            return BadRequest(new { message = "Invalid or expired reset token." });
+
+        if (request.NewPassword.Length < 6)
+            return BadRequest(new { message = "Password must be at least 6 characters." });
+
+        prt.User.PasswordHash = _passwordService.HashPassword(request.NewPassword);
+        prt.User.UpdatedAt = DateTime.UtcNow;
+        prt.UsedAt = DateTime.UtcNow;
+
+        // Revoke all active refresh tokens so existing sessions are invalidated
+        var refreshTokens = await _db.RefreshTokens
+            .Where(r => r.UserId == prt.UserId && r.RevokedAt == null)
+            .ToListAsync();
+        foreach (var rt in refreshTokens)
+            rt.RevokedAt = DateTime.UtcNow;
+
+        await _db.SaveChangesAsync();
+        return Ok(new { message = "Password reset successfully. Please sign in with your new password." });
     }
 
     [Authorize]

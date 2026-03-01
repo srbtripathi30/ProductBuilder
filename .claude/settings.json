@@ -1,4 +1,36 @@
 {
+  "permissions": {
+    "allow": [
+      "Read(**)",
+      "Glob(**)",
+      "Grep(**)",
+      "Bash(cat:*)",
+      "Bash(ls:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(pwd:*)",
+      "Edit(**)",
+      "Write(**)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git branch:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git stash:*)",
+      "Bash(git fetch:*)",
+      "Bash(git checkout:*)",
+      "Bash(npm run *)",
+      "Bash(dotnet build:*)",
+      "Bash(dotnet watch:*)",
+      "Bash(dotnet run:*)",
+      "Bash(dotnet test:*)",
+      "Bash(dotnet ef:*)",
+      "Bash(docker ps:*)",
+      "Bash(docker start:*)",
+      "Bash(docker stop:*)"
+    ]
+  },
   "hooks": {
     "PostToolUse": [
       {
