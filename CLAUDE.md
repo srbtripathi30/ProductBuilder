@@ -1,5 +1,7 @@
 # CLAUDE.md — ProductBuilder Project Instructions
 
+> Last modified: 2026-03-01
+
 ## Project Overview
 Insurance Product Builder — a full-stack underwriting platform.
 Configure hierarchical insurance products (LOB → Product → Coverage → Cover → Limit/Deductible/Premium/Modifier) and generate quotes with automated premium calculation.
@@ -52,6 +54,13 @@ ProductBuilder/
 - Request DTOs: `CreateXxxRequest` / `UpdateXxxRequest`; Response DTOs: `XxxDto`
 - Controllers use `[ApiController]` + `[Route("api/[controller]")]`
 - Do not skip `[Authorize]` on protected endpoints
+- Stakeholder create (Underwriter/Broker) validates: user exists, user is active, user role matches, not already assigned
+- Stakeholder delete (Underwriter/Broker) blocks if linked quotes exist (returns 400)
+
+### MD file maintenance (MANDATORY)
+- After **every** code change, update `CLAUDE.md` (test count, key files, conventions) and `MEMORY.md` as needed
+- A PostToolUse hook (`.claude/hooks/post-edit.sh`) auto-stamps `> Last modified:` on every Edit/Write and warns when the backend server is not running under `dotnet watch`
+- The hook fires automatically — do NOT skip updating the markdown content manually
 
 ### Frontend conventions
 - API functions live in `src/api/<resource>.api.ts`, all use the shared Axios client
@@ -59,6 +68,9 @@ ProductBuilder/
 - Use `primary-*` Tailwind classes for brand color (defined in `tailwind.config.js`)
 - Auth state comes from `AuthContext` — do not duplicate auth logic elsewhere
 - Use `AmountInput` (not `<Input type="number">`) for all monetary amount fields — it provides k/m/l shortcut expansion (thousands / millions / lakhs) on Tab or blur; its `onChange` receives a `number` directly
+- Delete actions use `window.confirm` for confirmation and a `Trash2` icon button (`hover:text-red-600`); hidden for the current user on their own record
+- Underwriter/Broker create forms filter the user dropdown to only show active, correct-role, not-yet-assigned users
+- Broker and Underwriter are optional fields on both QuoteWizard (new quote) and EditQuotePage
 
 ### Testing conventions
 - Backend: use `Microsoft.EntityFrameworkCore.InMemory` for EF Core tests; InMemory does NOT enforce FK constraints — set GUIDs manually
@@ -72,7 +84,7 @@ ProductBuilder/
 ```bash
 # ── Backend ────────────────────────────────────────────────────────────────
 cd ProductBuilder.API && dotnet build
-cd ProductBuilder.API/src/ProductBuilder.API && dotnet run --urls "http://localhost:5000"
+cd ProductBuilder.API/src/ProductBuilder.API && dotnet watch run --urls "http://localhost:5000"   # auto-restarts on .cs changes
 
 # ── Frontend ───────────────────────────────────────────────────────────────
 cd ProductBuilder.UI && npm run dev       # http://localhost:5173
@@ -121,9 +133,12 @@ docker run -d --name productbuilder-postgres \
 | `ProductBuilder.API/src/ProductBuilder.Infrastructure/Migrations/` | EF Core migrations |
 | `ProductBuilder.API/tests/ProductBuilder.Tests/Services/` | xUnit service tests |
 | `ProductBuilder.UI/src/api/client.ts` | Axios instance + JWT interceptor + 401 refresh |
+| `ProductBuilder.UI/src/api/stakeholders.api.ts` | insurersApi, underwritersApi (+ delete), brokersApi (+ delete), usersApi |
 | `ProductBuilder.UI/src/store/AuthContext.tsx` | Auth state, localStorage persistence |
 | `ProductBuilder.UI/src/App.tsx` | Full route tree |
 | `ProductBuilder.UI/src/types/index.ts` | All TypeScript interfaces |
+| `ProductBuilder.UI/src/features/settings/UsersPage.tsx` | Admin-only User Management page (create/edit/delete, self-delete guard) |
+| `ProductBuilder.UI/src/features/products/ProductListPage.tsx` | Product list with delete action |
 | `ProductBuilder.UI/vitest.config.ts` | Vitest + jsdom config |
 
 ---
@@ -137,4 +152,4 @@ docker run -d --name productbuilder-postgres \
 | `formatters.test.ts` | 22 | Currency (null, zero, EUR, large), date formatting, all status colors |
 | `cn.test.ts` | 11 | Class merging, falsy filtering, Tailwind conflict resolution |
 | `AmountInput.test.tsx` | 17 | parseAmountString (k/m/l/decimals/invalid), Tab/blur conversion, case-insensitivity, value sync, error state |
-| **Total** | **81** | |
+| **Total** | **52** | (frontend unit tests; component integration covered by TypeScript + manual QA) |

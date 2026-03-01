@@ -12,7 +12,11 @@ import { ProductDetailPage } from './features/products/ProductDetailPage';
 import { QuoteListPage } from './features/quotes/QuoteListPage';
 import { QuoteWizard } from './features/quotes/QuoteWizard';
 import { QuoteDetailPage } from './features/quotes/QuoteDetailPage';
+import { EditQuotePage } from './features/quotes/EditQuotePage';
 import { InsurerPage } from './features/insurers/InsurerPage';
+import { UnderwritersPage } from './features/underwriters/UnderwritersPage';
+import { BrokersPage } from './features/brokers/BrokersPage';
+import { UsersPage } from './features/settings/UsersPage';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30_000 } }
@@ -35,10 +39,11 @@ export default function App() {
                 <Route path="/quotes" element={<QuoteListPage />} />
                 <Route path="/quotes/new" element={<QuoteWizard />} />
                 <Route path="/quotes/:quoteId" element={<QuoteDetailPage />} />
+                <Route path="/quotes/:quoteId/edit" element={<EditQuotePage />} />
                 <Route path="/insurers" element={<InsurerPage />} />
-                <Route path="/underwriters" element={<div className="p-6 text-gray-500">Underwriters — coming soon</div>} />
-                <Route path="/brokers" element={<div className="p-6 text-gray-500">Brokers — coming soon</div>} />
-                <Route path="/settings/users" element={<div className="p-6 text-gray-500">User Management — coming soon</div>} />
+                <Route path="/underwriters" element={<UnderwritersPage />} />
+                <Route path="/brokers" element={<BrokersPage />} />
+                <Route path="/settings/users" element={<UsersPage />} />
               </Route>
             </Route>
             <Route path="*" element={<Navigate to="/dashboard" replace />} />

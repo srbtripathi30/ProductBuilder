@@ -4,6 +4,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
 import { productsApi } from '../../api/products.api';
 import { quotesApi } from '../../api/quotes.api';
+import { brokersApi, underwritersApi } from '../../api/stakeholders.api';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { AmountInput } from '../../components/ui/AmountInput';
@@ -30,6 +31,8 @@ export function QuoteWizard() {
   const [coverages, setCoverages] = useState<CoverageDto[]>([]);
   const [covers, setCovers] = useState<CoverInput[]>([]);
   const [quoteData, setQuoteData] = useState({
+    brokerId: '',
+    underwriterId: '',
     insuredName: '', insuredEmail: '', insuredPhone: '',
     currency: 'USD', validUntil: '', notes: ''
   });
@@ -37,6 +40,14 @@ export function QuoteWizard() {
   const { data: products, isLoading } = useQuery({
     queryKey: ['products-active'],
     queryFn: () => productsApi.getAll({ status: 'Active' })
+  });
+  const { data: brokers } = useQuery({
+    queryKey: ['brokers'],
+    queryFn: brokersApi.getAll,
+  });
+  const { data: underwriters } = useQuery({
+    queryKey: ['underwriters'],
+    queryFn: underwritersApi.getAll,
   });
 
   const createMutation = useMutation({
@@ -68,6 +79,8 @@ export function QuoteWizard() {
   const handleSubmit = () => {
     createMutation.mutate({
       productId: selectedProduct!.id,
+      brokerId: quoteData.brokerId || undefined,
+      underwriterId: quoteData.underwriterId || undefined,
       insuredName: quoteData.insuredName,
       insuredEmail: quoteData.insuredEmail || undefined,
       insuredPhone: quoteData.insuredPhone || undefined,
@@ -124,6 +137,18 @@ export function QuoteWizard() {
               </div>
             )}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Select label="Broker" value={quoteData.brokerId} onChange={e => setQuoteData(d => ({ ...d, brokerId: e.target.value }))}>
+                <option value="">Select broker (optional)…</option>
+                {brokers?.filter(b => b.isActive).map(b => (
+                  <option key={b.id} value={b.id}>{b.companyName}</option>
+                ))}
+              </Select>
+              <Select label="Underwriter" value={quoteData.underwriterId} onChange={e => setQuoteData(d => ({ ...d, underwriterId: e.target.value }))}>
+                <option value="">Select underwriter (optional)…</option>
+                {underwriters?.map(u => (
+                  <option key={u.id} value={u.id}>{u.userName}</option>
+                ))}
+              </Select>
               <Input label="Insured Name *" value={quoteData.insuredName} onChange={e => setQuoteData(d => ({ ...d, insuredName: e.target.value }))} required />
               <Input label="Insured Email" type="email" value={quoteData.insuredEmail} onChange={e => setQuoteData(d => ({ ...d, insuredEmail: e.target.value }))} />
               <Input label="Insured Phone" value={quoteData.insuredPhone} onChange={e => setQuoteData(d => ({ ...d, insuredPhone: e.target.value }))} />
@@ -192,6 +217,14 @@ export function QuoteWizard() {
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div><span className="text-gray-500 block text-xs">Product</span><span className="font-medium">{selectedProduct?.name}</span></div>
                 <div><span className="text-gray-500 block text-xs">Insured</span><span className="font-medium">{quoteData.insuredName}</span></div>
+                <div>
+                  <span className="text-gray-500 block text-xs">Broker</span>
+                  <span className="font-medium">{brokers?.find(b => b.id === quoteData.brokerId)?.companyName ?? '—'}</span>
+                </div>
+                <div>
+                  <span className="text-gray-500 block text-xs">Underwriter</span>
+                  <span className="font-medium">{underwriters?.find(u => u.id === quoteData.underwriterId)?.userName ?? '—'}</span>
+                </div>
                 <div><span className="text-gray-500 block text-xs">Currency</span><span className="font-medium">{quoteData.currency}</span></div>
                 <div><span className="text-gray-500 block text-xs">Valid Until</span><span className="font-medium">{quoteData.validUntil || '—'}</span></div>
               </div>

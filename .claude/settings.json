@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/saurabhkumar/Docs/Projects/ProductBuilder/.claude/hooks/post-edit.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

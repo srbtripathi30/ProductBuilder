@@ -15,6 +15,7 @@ export function statusColor(status: string): string {
     Inactive: 'bg-yellow-100 text-yellow-700',
     Archived: 'bg-red-100 text-red-700',
     Submitted: 'bg-blue-100 text-blue-700',
+    Bound: 'bg-amber-100 text-amber-700',
     Approved: 'bg-green-100 text-green-700',
     Declined: 'bg-red-100 text-red-700',
     Expired: 'bg-gray-100 text-gray-700',
