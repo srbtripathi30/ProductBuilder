@@ -43,6 +43,11 @@ ProductBuilder/
 - `tailwindcss` must stay at **v3** (v4 breaks PostCSS config / `tailwind.config.js`)
 - Target framework must be **`net10.0`** (machine has dotnet 10.0.102)
 
+### Forgot password flow
+- `POST /api/auth/forgot-password` — looks up active user by email, generates a 64-char hex token (1-hour TTL), stores it in `password_reset_tokens`, **returns token directly** (no email service)
+- `POST /api/auth/reset-password` — validates token, updates password hash, marks token used, revokes all refresh tokens
+- Frontend: inline 3-view flow on the login card (`login` → `forgot` → `reset`); reset token is shown in an amber box with a copy button
+
 ### Seed data — NEVER use dynamic values in HasData()
 - `BCrypt.HashPassword()` inside `HasData()` causes `PendingModelChangesWarning` and crashes startup
 - Always pre-compute a static BCrypt hash and hardcode it. The current admin hash is already static.
@@ -133,6 +138,7 @@ docker run -d --name productbuilder-postgres \
 | `ProductBuilder.API/src/ProductBuilder.Infrastructure/Migrations/` | EF Core migrations |
 | `ProductBuilder.API/tests/ProductBuilder.Tests/Services/` | xUnit service tests |
 | `ProductBuilder.UI/src/api/client.ts` | Axios instance + JWT interceptor + 401 refresh |
+| `ProductBuilder.UI/src/api/auth.api.ts` | login, refresh, logout, forgotPassword, resetPassword |
 | `ProductBuilder.UI/src/api/stakeholders.api.ts` | insurersApi, underwritersApi (+ delete), brokersApi (+ delete), usersApi |
 | `ProductBuilder.UI/src/store/AuthContext.tsx` | Auth state, localStorage persistence |
 | `ProductBuilder.UI/src/App.tsx` | Full route tree |

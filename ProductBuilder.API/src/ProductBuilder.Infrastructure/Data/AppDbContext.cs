@@ -11,6 +11,7 @@ public class AppDbContext : DbContext
     public DbSet<Role> Roles => Set<Role>();
     public DbSet<User> Users => Set<User>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
     public DbSet<Underwriter> Underwriters => Set<Underwriter>();
     public DbSet<Insurer> Insurers => Set<Insurer>();
     public DbSet<Broker> Brokers => Set<Broker>();
