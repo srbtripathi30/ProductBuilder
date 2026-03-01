@@ -80,7 +80,7 @@ public class QuotesController : ControllerBase
         var quote = await _db.Quotes
             .Include(q => q.Product).Include(q => q.Broker)
             .Include(q => q.Underwriter).ThenInclude(u => u!.User)
-            .Include(q => q.QuoteCovers)
+            .Include(q => q.QuoteCovers).ThenInclude(qc => qc.Cover)
             .FirstOrDefaultAsync(q => q.Id == id);
         if (quote == null) return NotFound();
         if (quote.Status != "Draft") return BadRequest(new { message = "Only draft quotes can be edited" });
