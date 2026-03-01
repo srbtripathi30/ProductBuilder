@@ -128,9 +128,11 @@ docker run -d --name productbuilder-postgres \
 | `ProductBuilder.API/src/ProductBuilder.Infrastructure/Migrations/` | EF Core migrations |
 | `ProductBuilder.API/tests/ProductBuilder.Tests/Services/` | xUnit service tests |
 | `ProductBuilder.UI/src/api/client.ts` | Axios instance + JWT interceptor + 401 refresh |
+| `ProductBuilder.UI/src/api/stakeholders.api.ts` | insurersApi, underwritersApi, brokersApi, usersApi |
 | `ProductBuilder.UI/src/store/AuthContext.tsx` | Auth state, localStorage persistence |
 | `ProductBuilder.UI/src/App.tsx` | Full route tree |
 | `ProductBuilder.UI/src/types/index.ts` | All TypeScript interfaces |
+| `ProductBuilder.UI/src/features/settings/UsersPage.tsx` | Admin-only User Management page |
 | `ProductBuilder.UI/vitest.config.ts` | Vitest + jsdom config |
 
 ---
@@ -144,4 +146,4 @@ docker run -d --name productbuilder-postgres \
 | `formatters.test.ts` | 22 | Currency (null, zero, EUR, large), date formatting, all status colors |
 | `cn.test.ts` | 11 | Class merging, falsy filtering, Tailwind conflict resolution |
 | `AmountInput.test.tsx` | 17 | parseAmountString (k/m/l/decimals/invalid), Tab/blur conversion, case-insensitivity, value sync, error state |
-| **Total** | **81** | |
+| **Total** | **52** | (frontend unit tests; component integration covered by TypeScript + manual QA) |
