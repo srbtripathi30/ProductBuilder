@@ -1,5 +1,7 @@
 # CLAUDE.md — ProductBuilder Project Instructions
 
+> Last modified: 2026-02-28
+
 ## Project Overview
 Insurance Product Builder — a full-stack underwriting platform.
 Configure hierarchical insurance products (LOB → Product → Coverage → Cover → Limit/Deductible/Premium/Modifier) and generate quotes with automated premium calculation.
@@ -53,6 +55,11 @@ ProductBuilder/
 - Controllers use `[ApiController]` + `[Route("api/[controller]")]`
 - Do not skip `[Authorize]` on protected endpoints
 
+### MD file maintenance (MANDATORY)
+- After **every** code change, update `CLAUDE.md` (test count, key files, conventions) and `MEMORY.md` as needed
+- A PostToolUse hook (`.claude/hooks/post-edit.sh`) auto-stamps `> Last modified:` on every Edit/Write and warns when the backend server is not running under `dotnet watch`
+- The hook fires automatically — do NOT skip updating the markdown content manually
+
 ### Frontend conventions
 - API functions live in `src/api/<resource>.api.ts`, all use the shared Axios client
 - UI primitives live in `src/components/ui/` — reuse before creating new ones
@@ -72,7 +79,7 @@ ProductBuilder/
 ```bash
 # ── Backend ────────────────────────────────────────────────────────────────
 cd ProductBuilder.API && dotnet build
-cd ProductBuilder.API/src/ProductBuilder.API && dotnet run --urls "http://localhost:5000"
+cd ProductBuilder.API/src/ProductBuilder.API && dotnet watch run --urls "http://localhost:5000"   # auto-restarts on .cs changes
 
 # ── Frontend ───────────────────────────────────────────────────────────────
 cd ProductBuilder.UI && npm run dev       # http://localhost:5173
