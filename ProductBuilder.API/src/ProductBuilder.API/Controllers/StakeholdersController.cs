@@ -8,6 +8,7 @@ using ProductBuilder.Infrastructure.Data;
 namespace ProductBuilder.API.Controllers;
 
 [ApiController]
+[Route("api")]
 [Authorize]
 public class StakeholdersController : ControllerBase
 {
@@ -15,14 +16,14 @@ public class StakeholdersController : ControllerBase
     public StakeholdersController(AppDbContext db) => _db = db;
 
     // --- Underwriters ---
-    [HttpGet("api/underwriters")]
+    [HttpGet("underwriters")]
     public async Task<ActionResult<List<UnderwriterDto>>> GetUnderwriters()
     {
         var list = await _db.Underwriters.Include(u => u.User).ToListAsync();
         return Ok(list.Select(u => new UnderwriterDto { Id = u.Id, UserId = u.UserId, UserName = $"{u.User.FirstName} {u.User.LastName}", UserEmail = u.User.Email, LicenseNo = u.LicenseNo, Specialization = u.Specialization, AuthorityLimit = u.AuthorityLimit, CreatedAt = u.CreatedAt }));
     }
 
-    [HttpGet("api/underwriters/{id:guid}")]
+    [HttpGet("underwriters/{id:guid}")]
     public async Task<ActionResult<UnderwriterDto>> GetUnderwriter(Guid id)
     {
         var u = await _db.Underwriters.Include(u => u.User).FirstOrDefaultAsync(u => u.Id == id);
@@ -30,7 +31,7 @@ public class StakeholdersController : ControllerBase
         return Ok(new UnderwriterDto { Id = u.Id, UserId = u.UserId, UserName = $"{u.User.FirstName} {u.User.LastName}", UserEmail = u.User.Email, LicenseNo = u.LicenseNo, Specialization = u.Specialization, AuthorityLimit = u.AuthorityLimit, CreatedAt = u.CreatedAt });
     }
 
-    [HttpPost("api/underwriters")]
+    [HttpPost("underwriters")]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<UnderwriterDto>> CreateUnderwriter([FromBody] CreateUnderwriterRequest req)
     {
@@ -48,7 +49,7 @@ public class StakeholdersController : ControllerBase
         return Ok(new UnderwriterDto { Id = u.Id, UserId = u.UserId, UserName = $"{u.User.FirstName} {u.User.LastName}", UserEmail = u.User.Email, LicenseNo = u.LicenseNo, Specialization = u.Specialization, AuthorityLimit = u.AuthorityLimit, CreatedAt = u.CreatedAt });
     }
 
-    [HttpPut("api/underwriters/{id:guid}")]
+    [HttpPut("underwriters/{id:guid}")]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<UnderwriterDto>> UpdateUnderwriter(Guid id, [FromBody] UpdateUnderwriterRequest req)
     {
@@ -59,27 +60,44 @@ public class StakeholdersController : ControllerBase
         return Ok(new UnderwriterDto { Id = u.Id, UserId = u.UserId, UserName = $"{u.User.FirstName} {u.User.LastName}", UserEmail = u.User.Email, LicenseNo = u.LicenseNo, Specialization = u.Specialization, AuthorityLimit = u.AuthorityLimit, CreatedAt = u.CreatedAt });
     }
 
-    [HttpDelete("api/underwriters/{id:guid}")]
+    [HttpDelete("underwriters/{id:guid}")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteUnderwriter(Guid id)
     {
-        var u = await _db.Underwriters.Include(x => x.Quotes).FirstOrDefaultAsync(x => x.Id == id);
+        var u = await _db.Underwriters.FirstOrDefaultAsync(x => x.Id == id);
         if (u == null) return NotFound();
-        if (u.Quotes.Any()) return BadRequest(new { message = "Cannot delete underwriter with linked quotes" });
-        _db.Underwriters.Remove(u);
-        await _db.SaveChangesAsync();
-        return NoContent();
+
+        try
+        {
+            var linkedQuotes = await _db.Quotes.Where(q => q.UnderwriterId == id).ToListAsync();
+            foreach (var quote in linkedQuotes)
+            {
+                quote.UnderwriterId = null;
+                quote.UpdatedAt = DateTime.UtcNow;
+            }
+
+            // Persist FK nulling first to avoid DB constraint ordering issues.
+            await _db.SaveChangesAsync();
+
+            _db.Underwriters.Remove(u);
+            await _db.SaveChangesAsync();
+            return NoContent();
+        }
+        catch (DbUpdateException ex)
+        {
+            return BadRequest(new { message = $"Failed to delete underwriter: {ex.InnerException?.Message ?? ex.Message}" });
+        }
     }
 
     // --- Brokers ---
-    [HttpGet("api/brokers")]
+    [HttpGet("brokers")]
     public async Task<ActionResult<List<BrokerDto>>> GetBrokers()
     {
         var list = await _db.Brokers.Include(b => b.User).Include(b => b.Insurer).ToListAsync();
         return Ok(list.Select(b => new BrokerDto { Id = b.Id, UserId = b.UserId, UserName = $"{b.User.FirstName} {b.User.LastName}", UserEmail = b.User.Email, InsurerId = b.InsurerId, InsurerName = b.Insurer?.Name, CompanyName = b.CompanyName, LicenseNo = b.LicenseNo, CommissionRate = b.CommissionRate, IsActive = b.IsActive, CreatedAt = b.CreatedAt }));
     }
 
-    [HttpGet("api/brokers/{id:guid}")]
+    [HttpGet("brokers/{id:guid}")]
     public async Task<ActionResult<BrokerDto>> GetBroker(Guid id)
     {
         var b = await _db.Brokers.Include(x => x.User).Include(x => x.Insurer).FirstOrDefaultAsync(x => x.Id == id);
@@ -87,7 +105,7 @@ public class StakeholdersController : ControllerBase
         return Ok(new BrokerDto { Id = b.Id, UserId = b.UserId, UserName = $"{b.User.FirstName} {b.User.LastName}", UserEmail = b.User.Email, InsurerId = b.InsurerId, InsurerName = b.Insurer?.Name, CompanyName = b.CompanyName, LicenseNo = b.LicenseNo, CommissionRate = b.CommissionRate, IsActive = b.IsActive, CreatedAt = b.CreatedAt });
     }
 
-    [HttpPost("api/brokers")]
+    [HttpPost("brokers")]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<BrokerDto>> CreateBroker([FromBody] CreateBrokerRequest req)
     {
@@ -105,7 +123,7 @@ public class StakeholdersController : ControllerBase
         return Ok(new BrokerDto { Id = b.Id, UserId = b.UserId, UserName = $"{b.User.FirstName} {b.User.LastName}", UserEmail = b.User.Email, InsurerId = b.InsurerId, CompanyName = b.CompanyName, LicenseNo = b.LicenseNo, CommissionRate = b.CommissionRate, IsActive = b.IsActive, CreatedAt = b.CreatedAt });
     }
 
-    [HttpPut("api/brokers/{id:guid}")]
+    [HttpPut("brokers/{id:guid}")]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<BrokerDto>> UpdateBroker(Guid id, [FromBody] UpdateBrokerRequest req)
     {
@@ -117,15 +135,32 @@ public class StakeholdersController : ControllerBase
         return Ok(new BrokerDto { Id = b.Id, UserId = b.UserId, UserName = $"{b.User.FirstName} {b.User.LastName}", UserEmail = b.User.Email, InsurerId = b.InsurerId, InsurerName = b.Insurer?.Name, CompanyName = b.CompanyName, LicenseNo = b.LicenseNo, CommissionRate = b.CommissionRate, IsActive = b.IsActive, CreatedAt = b.CreatedAt });
     }
 
-    [HttpDelete("api/brokers/{id:guid}")]
+    [HttpDelete("brokers/{id:guid}")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteBroker(Guid id)
     {
-        var b = await _db.Brokers.Include(x => x.Quotes).FirstOrDefaultAsync(x => x.Id == id);
+        var b = await _db.Brokers.FirstOrDefaultAsync(x => x.Id == id);
         if (b == null) return NotFound();
-        if (b.Quotes.Any()) return BadRequest(new { message = "Cannot delete broker with linked quotes" });
-        _db.Brokers.Remove(b);
-        await _db.SaveChangesAsync();
-        return NoContent();
+
+        try
+        {
+            var linkedQuotes = await _db.Quotes.Where(q => q.BrokerId == id).ToListAsync();
+            foreach (var quote in linkedQuotes)
+            {
+                quote.BrokerId = null;
+                quote.UpdatedAt = DateTime.UtcNow;
+            }
+
+            // Persist FK nulling first to avoid DB constraint ordering issues.
+            await _db.SaveChangesAsync();
+
+            _db.Brokers.Remove(b);
+            await _db.SaveChangesAsync();
+            return NoContent();
+        }
+        catch (DbUpdateException ex)
+        {
+            return BadRequest(new { message = $"Failed to delete broker: {ex.InnerException?.Message ?? ex.Message}" });
+        }
     }
 }

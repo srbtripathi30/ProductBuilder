@@ -24,6 +24,10 @@ export function InsurerPage() {
   const deleteMutation = useMutation({
     mutationFn: insurersApi.delete,
     onSuccess: () => qc.invalidateQueries({ queryKey: ['insurers'] }),
+    onError: (err: unknown) => {
+      const message = (err as any)?.response?.data?.message ?? 'Failed to delete insurer';
+      window.alert(message);
+    },
   });
 
   const openCreate = () => { setEditing(null); setForm({ name: '', code: '', licenseNo: '', address: '', phone: '', email: '' }); setOpen(true); };
@@ -36,6 +40,7 @@ export function InsurerPage() {
   };
 
   if (isLoading) return <PageSpinner />;
+  const visibleInsurers = (insurers ?? []).filter(i => i.isActive);
 
   return (
     <div className="space-y-6">
@@ -49,7 +54,7 @@ export function InsurerPage() {
             <tr>{['Code', 'Name', 'Email', 'Phone', 'Status', ''].map(h => <th key={h} className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{h}</th>)}</tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {insurers?.map(i => (
+            {visibleInsurers.map(i => (
               <tr key={i.id} className="hover:bg-gray-50">
                 <td className="px-4 py-4 text-sm font-mono font-medium">{i.code}</td>
                 <td className="px-4 py-4 text-sm font-medium text-gray-900">{i.name}</td>
@@ -71,7 +76,7 @@ export function InsurerPage() {
                 </td>
               </tr>
             ))}
-            {!insurers?.length && <tr><td colSpan={6} className="px-6 py-8 text-center text-sm text-gray-400">No insurers found</td></tr>}
+            {!visibleInsurers.length && <tr><td colSpan={6} className="px-6 py-8 text-center text-sm text-gray-400">No insurers found</td></tr>}
           </tbody>
         </table>
       </div>
