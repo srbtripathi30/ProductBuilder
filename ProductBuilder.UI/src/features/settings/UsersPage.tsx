@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Pencil, Shield } from 'lucide-react';
+import { Plus, Pencil, Shield, AlertCircle } from 'lucide-react';
 import { usersApi } from '../../api/stakeholders.api';
 import { useAuth } from '../../store/AuthContext';
 import { Button } from '../../components/ui/Button';
@@ -40,11 +40,20 @@ interface EditForm {
   isActive: boolean;
 }
 
+function apiErrorMessage(err: unknown, fallback: string): string {
+  if (!err) return fallback;
+  const msg = (err as any)?.response?.data?.message;
+  return msg ?? fallback;
+}
+
 export function UsersPage() {
   const qc = useQueryClient();
   const { user: currentUser } = useAuth();
 
-  const { data: users, isLoading } = useQuery({ queryKey: ['users'], queryFn: usersApi.getAll });
+  const { data: users, isLoading, isError, error } = useQuery({
+    queryKey: ['users'],
+    queryFn: usersApi.getAll,
+  });
 
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<UserDetailDto | null>(null);
@@ -64,13 +73,21 @@ export function UsersPage() {
   const openCreate = () => {
     setEditing(null);
     setCreateForm({ email: '', password: '', firstName: '', lastName: '', roleId: 2 });
+    createMutation.reset();
     setOpen(true);
   };
 
   const openEdit = (u: UserDetailDto) => {
     setEditing(u);
     setEditForm({ firstName: u.firstName, lastName: u.lastName, isActive: u.isActive });
+    updateMutation.reset();
     setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    createMutation.reset();
+    updateMutation.reset();
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -80,8 +97,29 @@ export function UsersPage() {
   };
 
   const isSelf = (u: UserDetailDto) => u.email === currentUser?.email;
+  const activeError = editing ? updateMutation.error : createMutation.error;
 
   if (isLoading) return <PageSpinner />;
+
+  if (isError) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
+          <p className="text-sm text-gray-500">Manage system users and their roles</p>
+        </div>
+        <div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-6 text-red-700">
+          <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="font-medium">Failed to load users</p>
+            <p className="text-sm text-red-600 mt-1">
+              {apiErrorMessage(error, 'Ensure you are logged in as an Admin and the server is running.')}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -137,7 +175,7 @@ export function UsersPage() {
         </table>
       </div>
 
-      <Modal open={open} onClose={() => setOpen(false)} title={editing ? 'Edit User' : 'New User'} size="lg">
+      <Modal open={open} onClose={handleClose} title={editing ? 'Edit User' : 'New User'} size="lg">
         <form onSubmit={handleSubmit} className="space-y-4">
           {!editing ? (
             <>
@@ -184,8 +222,16 @@ export function UsersPage() {
               </label>
             </>
           )}
+
+          {activeError && (
+            <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+              <AlertCircle className="h-4 w-4 flex-shrink-0" />
+              {apiErrorMessage(activeError, 'Something went wrong. Please try again.')}
+            </div>
+          )}
+
           <div className="flex justify-end gap-3 pt-2">
-            <Button variant="secondary" type="button" onClick={() => setOpen(false)}>Cancel</Button>
+            <Button variant="secondary" type="button" onClick={handleClose}>Cancel</Button>
             <Button type="submit" loading={createMutation.isPending || updateMutation.isPending}>
               {editing ? 'Update' : 'Create'}
             </Button>
