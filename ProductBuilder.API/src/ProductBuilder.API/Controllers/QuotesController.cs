@@ -74,6 +74,42 @@ public class QuotesController : ControllerBase
         catch (KeyNotFoundException) { return NotFound(); }
     }
 
+    [HttpPut("{id:guid}")]
+    public async Task<ActionResult<QuoteDto>> Update(Guid id, [FromBody] UpdateQuoteRequest request)
+    {
+        var quote = await _db.Quotes
+            .Include(q => q.Product).Include(q => q.Broker)
+            .Include(q => q.Underwriter).ThenInclude(u => u!.User)
+            .Include(q => q.QuoteCovers)
+            .FirstOrDefaultAsync(q => q.Id == id);
+        if (quote == null) return NotFound();
+        if (quote.Status != "Draft") return BadRequest(new { message = "Only draft quotes can be edited" });
+
+        quote.BrokerId = request.BrokerId;
+        quote.UnderwriterId = request.UnderwriterId;
+        quote.InsuredName = request.InsuredName;
+        quote.InsuredEmail = request.InsuredEmail;
+        quote.InsuredPhone = request.InsuredPhone;
+        quote.Currency = request.Currency;
+        quote.ValidUntil = request.ValidUntil;
+        quote.Notes = request.Notes;
+        quote.UpdatedAt = DateTime.UtcNow;
+
+        foreach (var c in request.Covers)
+        {
+            var qc = quote.QuoteCovers.FirstOrDefault(x => x.CoverId == c.CoverId);
+            if (qc == null) continue;
+            qc.IsSelected = c.IsSelected;
+            qc.BasisValue = c.BasisValue;
+            qc.SelectedLimit = c.SelectedLimit;
+            qc.SelectedDeductible = c.SelectedDeductible;
+            qc.CalculatedPremium = null;
+        }
+
+        await _db.SaveChangesAsync();
+        return Ok(MapToFullDto(quote));
+    }
+
     [HttpPut("{id:guid}/submit")]
     public async Task<ActionResult<QuoteDto>> Submit(Guid id)
     {
@@ -81,6 +117,42 @@ public class QuotesController : ControllerBase
         if (quote == null) return NotFound();
         if (quote.Status != "Draft") return BadRequest(new { message = "Only draft quotes can be submitted" });
         quote.Status = "Submitted";
+        quote.UpdatedAt = DateTime.UtcNow;
+        await _db.SaveChangesAsync();
+        return Ok(MapToDto(quote));
+    }
+
+    [HttpPut("{id:guid}/bind")]
+    public async Task<ActionResult<QuoteDto>> Bind(Guid id)
+    {
+        var quote = await _db.Quotes.Include(q => q.Product).Include(q => q.Broker).Include(q => q.Underwriter).ThenInclude(u => u!.User).FirstOrDefaultAsync(q => q.Id == id);
+        if (quote == null) return NotFound();
+        if (quote.Status != "Submitted") return BadRequest(new { message = "Only submitted quotes can be bound" });
+        quote.Status = "Bound";
+        quote.UpdatedAt = DateTime.UtcNow;
+        await _db.SaveChangesAsync();
+        return Ok(MapToDto(quote));
+    }
+
+    [HttpPut("{id:guid}/revise")]
+    public async Task<ActionResult<QuoteDto>> Revise(Guid id)
+    {
+        var quote = await _db.Quotes.Include(q => q.Product).Include(q => q.Broker).Include(q => q.Underwriter).ThenInclude(u => u!.User).FirstOrDefaultAsync(q => q.Id == id);
+        if (quote == null) return NotFound();
+        if (quote.Status != "Submitted") return BadRequest(new { message = "Only submitted quotes can be revised" });
+        quote.Status = "Draft";
+        quote.UpdatedAt = DateTime.UtcNow;
+        await _db.SaveChangesAsync();
+        return Ok(MapToDto(quote));
+    }
+
+    [HttpPut("{id:guid}/revise-bind")]
+    public async Task<ActionResult<QuoteDto>> ReviseBind(Guid id)
+    {
+        var quote = await _db.Quotes.Include(q => q.Product).Include(q => q.Broker).Include(q => q.Underwriter).ThenInclude(u => u!.User).FirstOrDefaultAsync(q => q.Id == id);
+        if (quote == null) return NotFound();
+        if (quote.Status != "Bound") return BadRequest(new { message = "Only bound quotes can have their binding revised" });
+        quote.Status = "Draft";
         quote.UpdatedAt = DateTime.UtcNow;
         await _db.SaveChangesAsync();
         return Ok(MapToDto(quote));

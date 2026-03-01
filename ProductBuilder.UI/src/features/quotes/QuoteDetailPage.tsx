@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Calculator, Send } from 'lucide-react';
+import { ArrowLeft, Calculator, Send, Pencil, Anchor, RotateCcw, RefreshCw } from 'lucide-react';
 import { quotesApi } from '../../api/quotes.api';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
@@ -17,14 +17,13 @@ export function QuoteDetailPage() {
     queryKey: ['quote', quoteId],
     queryFn: () => quotesApi.getById(quoteId!)
   });
-  const calcMutation = useMutation({
-    mutationFn: () => quotesApi.calculate(quoteId!),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['quote', quoteId] })
-  });
-  const submitMutation = useMutation({
-    mutationFn: () => quotesApi.submit(quoteId!),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['quote', quoteId] })
-  });
+  const invalidate = () => qc.invalidateQueries({ queryKey: ['quote', quoteId] });
+
+  const calcMutation     = useMutation({ mutationFn: () => quotesApi.calculate(quoteId!),   onSuccess: invalidate });
+  const submitMutation   = useMutation({ mutationFn: () => quotesApi.submit(quoteId!),      onSuccess: invalidate });
+  const bindMutation     = useMutation({ mutationFn: () => quotesApi.bind(quoteId!),        onSuccess: invalidate });
+  const reviseMutation   = useMutation({ mutationFn: () => quotesApi.revise(quoteId!),      onSuccess: invalidate });
+  const reviseBindMutation = useMutation({ mutationFn: () => quotesApi.reviseBind(quoteId!), onSuccess: invalidate });
 
   if (isLoading) return <PageSpinner />;
   if (!quote) return <div className="text-center text-gray-500 p-6">Quote not found</div>;
@@ -43,16 +42,32 @@ export function QuoteDetailPage() {
           </div>
           <p className="text-sm text-gray-500">{quote.productName} · {quote.currency}</p>
         </div>
-        {quote.status === 'Draft' && (
-          <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
+          {quote.status === 'Draft' && <>
+            <Button variant="secondary" onClick={() => navigate(`/quotes/${quoteId}/edit`)}>
+              <Pencil className="mr-2 h-4 w-4" />Edit
+            </Button>
             <Button variant="secondary" onClick={() => calcMutation.mutate()} loading={calcMutation.isPending}>
               <Calculator className="mr-2 h-4 w-4" />Recalculate
             </Button>
             <Button onClick={() => submitMutation.mutate()} loading={submitMutation.isPending}>
               <Send className="mr-2 h-4 w-4" />Submit
             </Button>
-          </div>
-        )}
+          </>}
+          {quote.status === 'Submitted' && <>
+            <Button variant="secondary" onClick={() => reviseMutation.mutate()} loading={reviseMutation.isPending}>
+              <RotateCcw className="mr-2 h-4 w-4" />Revise
+            </Button>
+            <Button onClick={() => bindMutation.mutate()} loading={bindMutation.isPending}>
+              <Anchor className="mr-2 h-4 w-4" />Bind
+            </Button>
+          </>}
+          {quote.status === 'Bound' && (
+            <Button variant="secondary" onClick={() => reviseBindMutation.mutate()} loading={reviseBindMutation.isPending}>
+              <RefreshCw className="mr-2 h-4 w-4" />Revise Bind
+            </Button>
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
