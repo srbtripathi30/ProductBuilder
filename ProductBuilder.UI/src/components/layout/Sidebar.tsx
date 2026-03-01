@@ -14,11 +14,11 @@ interface NavItem {
 const navItems: NavItem[] = [
   { to: '/dashboard', icon: <LayoutDashboard className="h-5 w-5" />, label: 'Dashboard' },
   { to: '/lob', icon: <Layers className="h-5 w-5" />, label: 'Lines of Business', roles: ['Admin', 'Underwriter'] },
-  { to: '/products', icon: <Package className="h-5 w-5" />, label: 'Products' },
-  { to: '/quotes', icon: <FileText className="h-5 w-5" />, label: 'Quotes' },
-  { to: '/insurers', icon: <Building2 className="h-5 w-5" />, label: 'Insurers' },
-  { to: '/underwriters', icon: <UserCheck className="h-5 w-5" />, label: 'Underwriters' },
-  { to: '/brokers', icon: <Briefcase className="h-5 w-5" />, label: 'Brokers' },
+  { to: '/products', icon: <Package className="h-5 w-5" />, label: 'Products', roles: ['Admin', 'Underwriter', 'Broker', 'Insurer'] },
+  { to: '/quotes', icon: <FileText className="h-5 w-5" />, label: 'Quotes', roles: ['Admin', 'Underwriter', 'Broker', 'Insurer'] },
+  { to: '/insurers', icon: <Building2 className="h-5 w-5" />, label: 'Insurers', roles: ['Admin', 'Underwriter'] },
+  { to: '/underwriters', icon: <UserCheck className="h-5 w-5" />, label: 'Underwriters', roles: ['Admin', 'Underwriter'] },
+  { to: '/brokers', icon: <Briefcase className="h-5 w-5" />, label: 'Brokers', roles: ['Admin', 'Underwriter', 'Broker'] },
   { to: '/settings/users', icon: <Settings className="h-5 w-5" />, label: 'Users', roles: ['Admin'] },
 ];
 
