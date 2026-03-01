@@ -68,6 +68,19 @@ public class QuoteCoverInput
     public decimal? BasisValue { get; set; }
 }
 
+public class UpdateQuoteRequest
+{
+    public Guid? BrokerId { get; set; }
+    public Guid? UnderwriterId { get; set; }
+    public string InsuredName { get; set; } = string.Empty;
+    public string? InsuredEmail { get; set; }
+    public string? InsuredPhone { get; set; }
+    public string Currency { get; set; } = "USD";
+    public DateOnly? ValidUntil { get; set; }
+    public string? Notes { get; set; }
+    public List<QuoteCoverInput> Covers { get; set; } = new();
+}
+
 public class QuoteModifierInput
 {
     public Guid ModifierId { get; set; }

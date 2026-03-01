@@ -12,6 +12,7 @@ import { ProductDetailPage } from './features/products/ProductDetailPage';
 import { QuoteListPage } from './features/quotes/QuoteListPage';
 import { QuoteWizard } from './features/quotes/QuoteWizard';
 import { QuoteDetailPage } from './features/quotes/QuoteDetailPage';
+import { EditQuotePage } from './features/quotes/EditQuotePage';
 import { InsurerPage } from './features/insurers/InsurerPage';
 import { UnderwritersPage } from './features/underwriters/UnderwritersPage';
 import { BrokersPage } from './features/brokers/BrokersPage';
@@ -37,6 +38,7 @@ export default function App() {
                 <Route path="/quotes" element={<QuoteListPage />} />
                 <Route path="/quotes/new" element={<QuoteWizard />} />
                 <Route path="/quotes/:quoteId" element={<QuoteDetailPage />} />
+                <Route path="/quotes/:quoteId/edit" element={<EditQuotePage />} />
                 <Route path="/insurers" element={<InsurerPage />} />
                 <Route path="/underwriters" element={<UnderwritersPage />} />
                 <Route path="/brokers" element={<BrokersPage />} />
