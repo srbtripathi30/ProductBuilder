@@ -23,7 +23,10 @@ export function QuoteDetailPage() {
   const submitMutation   = useMutation({ mutationFn: () => quotesApi.submit(quoteId!),      onSuccess: invalidate });
   const bindMutation     = useMutation({ mutationFn: () => quotesApi.bind(quoteId!),        onSuccess: invalidate });
   const reviseMutation   = useMutation({ mutationFn: () => quotesApi.revise(quoteId!),      onSuccess: invalidate });
-  const reviseBindMutation = useMutation({ mutationFn: () => quotesApi.reviseBind(quoteId!), onSuccess: invalidate });
+  const reviseBindMutation = useMutation({
+    mutationFn: () => quotesApi.reviseBind(quoteId!),
+    onSuccess: () => { invalidate(); navigate(`/quotes/${quoteId}/edit`); }
+  });
 
   if (isLoading) return <PageSpinner />;
   if (!quote) return <div className="text-center text-gray-500 p-6">Quote not found</div>;

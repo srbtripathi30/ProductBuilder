@@ -27,7 +27,7 @@ export function EditQuotePage() {
   const { quoteId } = useParams<{ quoteId: string }>();
   const navigate = useNavigate();
 
-  const { data: quote, isLoading: loadingQuote } = useQuery({
+  const { data: quote, isLoading: loadingQuote, isFetching: fetchingQuote } = useQuery({
     queryKey: ['quote', quoteId],
     queryFn: () => quotesApi.getById(quoteId!),
   });
@@ -86,11 +86,17 @@ export function EditQuotePage() {
     setInitialized(true);
   }, [quote, coverages, initialized]);
 
+  const [saveError, setSaveError] = useState('');
+
   const saveMutation = useMutation({
     mutationFn: (data: object) => quotesApi.update(quoteId!, data),
     onSuccess: async () => {
       try { await quotesApi.calculate(quoteId!); } catch { /* best effort */ }
       navigate(`/quotes/${quoteId}`);
+    },
+    onError: (err: unknown) => {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      setSaveError(msg ?? 'Failed to save quote. Please try again.');
     },
   });
 
@@ -117,7 +123,9 @@ export function EditQuotePage() {
     });
   };
 
-  if (loadingQuote || loadingCoverages || !initialized) return <PageSpinner />;
+  // Wait for any in-flight refetch (e.g. after Revise Bind) before checking status,
+  // otherwise stale "Bound" data would immediately redirect the user away.
+  if (loadingQuote || fetchingQuote || loadingCoverages || !initialized) return <PageSpinner />;
   if (!quote) return <div className="p-6 text-gray-500">Quote not found</div>;
 
   if (quote.status !== 'Draft') {
@@ -211,6 +219,9 @@ export function EditQuotePage() {
         </div>
       </div>
 
+      {saveError && (
+        <p className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{saveError}</p>
+      )}
       <div className="flex justify-end gap-3">
         <Button variant="secondary" onClick={() => navigate(`/quotes/${quoteId}`)}>Cancel</Button>
         <Button onClick={handleSave} loading={saveMutation.isPending}>

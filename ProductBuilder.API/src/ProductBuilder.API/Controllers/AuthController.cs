@@ -29,8 +29,9 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<ActionResult<AuthResponse>> Login([FromBody] LoginRequest request)
     {
+        var email = request.Email.Trim().ToLower();
         var user = await _db.Users.Include(u => u.Role)
-            .FirstOrDefaultAsync(u => u.Email == request.Email && u.IsActive);
+            .FirstOrDefaultAsync(u => u.Email.ToLower() == email && u.IsActive);
 
         if (user == null || !_passwordService.VerifyPassword(request.Password, user.PasswordHash))
             return Unauthorized(new { message = "Invalid email or password" });
@@ -105,7 +106,8 @@ public class AuthController : ControllerBase
     [HttpPost("forgot-password")]
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
     {
-        var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == request.Email && u.IsActive);
+        var forgotEmail = request.Email.Trim().ToLower();
+        var user = await _db.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == forgotEmail && u.IsActive);
         if (user == null)
             return Ok(new { message = "If that email is registered, a reset token has been generated." });
 
