@@ -18,7 +18,7 @@ export function parseAmountString(raw: string): number | null {
 interface AmountInputProps {
   label?: string;
   error?: string;
-  value?: number | string;
+  value?: number | string | boolean;
   onChange?: (value: number) => void;
   placeholder?: string;
   required?: boolean;
@@ -27,8 +27,8 @@ interface AmountInputProps {
 }
 
 export function AmountInput({ label, error, value, onChange, placeholder, required, className, id }: AmountInputProps) {
-  const toDisplay = (v: number | string | undefined): string => {
-    if (v === undefined || v === '' || v === null) return '';
+  const toDisplay = (v: number | string | boolean | undefined): string => {
+    if (v === undefined || v === '' || v === null || typeof v === 'boolean') return '';
     const n = Number(v);
     return isNaN(n) ? '' : String(n);
   };
