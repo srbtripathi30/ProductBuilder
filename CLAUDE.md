@@ -58,6 +58,7 @@ ProductBuilder/
 - UI primitives live in `src/components/ui/` — reuse before creating new ones
 - Use `primary-*` Tailwind classes for brand color (defined in `tailwind.config.js`)
 - Auth state comes from `AuthContext` — do not duplicate auth logic elsewhere
+- Use `AmountInput` (not `<Input type="number">`) for all monetary amount fields — it provides k/m/l shortcut expansion (thousands / millions / lakhs) on Tab or blur; its `onChange` receives a `number` directly
 
 ### Testing conventions
 - Backend: use `Microsoft.EntityFrameworkCore.InMemory` for EF Core tests; InMemory does NOT enforce FK constraints — set GUIDs manually
@@ -135,4 +136,5 @@ docker run -d --name productbuilder-postgres \
 | `PremiumCalculationServiceTests` | 14 | Flat/RateBased/PerUnit, min premium floor, Loading/Discount modifiers, unselected covers, not-found |
 | `formatters.test.ts` | 22 | Currency (null, zero, EUR, large), date formatting, all status colors |
 | `cn.test.ts` | 11 | Class merging, falsy filtering, Tailwind conflict resolution |
-| **Total** | **64** | |
+| `AmountInput.test.tsx` | 17 | parseAmountString (k/m/l/decimals/invalid), Tab/blur conversion, case-insensitivity, value sync, error state |
+| **Total** | **81** | |

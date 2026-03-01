@@ -6,6 +6,7 @@ import { productsApi } from '../../api/products.api';
 import { quotesApi } from '../../api/quotes.api';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
+import { AmountInput } from '../../components/ui/AmountInput';
 import { Select } from '../../components/ui/Select';
 import { PageSpinner } from '../../components/ui/Spinner';
 import type { ProductDto, CoverageDto } from '../../types';
@@ -154,12 +155,12 @@ export function QuoteWizard() {
                       </div>
                       {cover.isSelected && (
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3 ml-7">
-                          <Input label="Basis Value (SI / Revenue)" type="number" placeholder="0"
-                            value={String(cover.basisValue ?? '')} onChange={e => updateCover(cover.coverId, { basisValue: parseFloat(e.target.value) })} />
-                          <Input label="Selected Limit" type="number" placeholder="Optional"
-                            value={String(cover.selectedLimit ?? '')} onChange={e => updateCover(cover.coverId, { selectedLimit: parseFloat(e.target.value) })} />
-                          <Input label="Selected Deductible" type="number" placeholder="Optional"
-                            value={String(cover.selectedDeductible ?? '')} onChange={e => updateCover(cover.coverId, { selectedDeductible: parseFloat(e.target.value) })} />
+                          <AmountInput label="Basis Value (SI / Revenue)" placeholder="0"
+                            value={cover.basisValue} onChange={v => updateCover(cover.coverId, { basisValue: v })} />
+                          <AmountInput label="Selected Limit" placeholder="Optional"
+                            value={cover.selectedLimit} onChange={v => updateCover(cover.coverId, { selectedLimit: v })} />
+                          <AmountInput label="Selected Deductible" placeholder="Optional"
+                            value={cover.selectedDeductible} onChange={v => updateCover(cover.coverId, { selectedDeductible: v })} />
                         </div>
                       )}
                     </div>
