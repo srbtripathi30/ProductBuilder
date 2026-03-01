@@ -34,6 +34,14 @@ public class StakeholdersController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<UnderwriterDto>> CreateUnderwriter([FromBody] CreateUnderwriterRequest req)
     {
+        var user = await _db.Users.Include(x => x.Role).FirstOrDefaultAsync(x => x.Id == req.UserId);
+        if (user == null) return BadRequest(new { message = "User not found" });
+        if (!user.IsActive) return BadRequest(new { message = "User is inactive" });
+        if (!string.Equals(user.Role.Name, "Underwriter", StringComparison.OrdinalIgnoreCase))
+            return BadRequest(new { message = "Selected user is not an Underwriter" });
+        if (await _db.Underwriters.AnyAsync(x => x.UserId == req.UserId))
+            return Conflict(new { message = "This user is already assigned as an underwriter" });
+
         var u = new Underwriter { UserId = req.UserId, LicenseNo = req.LicenseNo, Specialization = req.Specialization, AuthorityLimit = req.AuthorityLimit };
         _db.Underwriters.Add(u); await _db.SaveChangesAsync();
         await _db.Entry(u).Reference(x => x.User).LoadAsync();
@@ -49,6 +57,18 @@ public class StakeholdersController : ControllerBase
         u.LicenseNo = req.LicenseNo; u.Specialization = req.Specialization; u.AuthorityLimit = req.AuthorityLimit;
         await _db.SaveChangesAsync();
         return Ok(new UnderwriterDto { Id = u.Id, UserId = u.UserId, UserName = $"{u.User.FirstName} {u.User.LastName}", UserEmail = u.User.Email, LicenseNo = u.LicenseNo, Specialization = u.Specialization, AuthorityLimit = u.AuthorityLimit, CreatedAt = u.CreatedAt });
+    }
+
+    [HttpDelete("api/underwriters/{id:guid}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> DeleteUnderwriter(Guid id)
+    {
+        var u = await _db.Underwriters.Include(x => x.Quotes).FirstOrDefaultAsync(x => x.Id == id);
+        if (u == null) return NotFound();
+        if (u.Quotes.Any()) return BadRequest(new { message = "Cannot delete underwriter with linked quotes" });
+        _db.Underwriters.Remove(u);
+        await _db.SaveChangesAsync();
+        return NoContent();
     }
 
     // --- Brokers ---
@@ -71,6 +91,14 @@ public class StakeholdersController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<BrokerDto>> CreateBroker([FromBody] CreateBrokerRequest req)
     {
+        var user = await _db.Users.Include(x => x.Role).FirstOrDefaultAsync(x => x.Id == req.UserId);
+        if (user == null) return BadRequest(new { message = "User not found" });
+        if (!user.IsActive) return BadRequest(new { message = "User is inactive" });
+        if (!string.Equals(user.Role.Name, "Broker", StringComparison.OrdinalIgnoreCase))
+            return BadRequest(new { message = "Selected user is not a Broker" });
+        if (await _db.Brokers.AnyAsync(x => x.UserId == req.UserId))
+            return Conflict(new { message = "This user is already assigned as a broker" });
+
         var b = new Broker { UserId = req.UserId, InsurerId = req.InsurerId, CompanyName = req.CompanyName, LicenseNo = req.LicenseNo, CommissionRate = req.CommissionRate };
         _db.Brokers.Add(b); await _db.SaveChangesAsync();
         await _db.Entry(b).Reference(x => x.User).LoadAsync();
@@ -87,5 +115,17 @@ public class StakeholdersController : ControllerBase
         b.CommissionRate = req.CommissionRate; b.IsActive = req.IsActive;
         await _db.SaveChangesAsync();
         return Ok(new BrokerDto { Id = b.Id, UserId = b.UserId, UserName = $"{b.User.FirstName} {b.User.LastName}", UserEmail = b.User.Email, InsurerId = b.InsurerId, InsurerName = b.Insurer?.Name, CompanyName = b.CompanyName, LicenseNo = b.LicenseNo, CommissionRate = b.CommissionRate, IsActive = b.IsActive, CreatedAt = b.CreatedAt });
+    }
+
+    [HttpDelete("api/brokers/{id:guid}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> DeleteBroker(Guid id)
+    {
+        var b = await _db.Brokers.Include(x => x.Quotes).FirstOrDefaultAsync(x => x.Id == id);
+        if (b == null) return NotFound();
+        if (b.Quotes.Any()) return BadRequest(new { message = "Cannot delete broker with linked quotes" });
+        _db.Brokers.Remove(b);
+        await _db.SaveChangesAsync();
+        return NoContent();
     }
 }

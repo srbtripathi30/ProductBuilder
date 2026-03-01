@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Pencil } from 'lucide-react';
+import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { insurersApi } from '../../api/stakeholders.api';
 import { Button } from '../../components/ui/Button';
 import { Modal } from '../../components/ui/Modal';
@@ -20,6 +20,10 @@ export function InsurerPage() {
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: object }) => insurersApi.update(id, data),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['insurers'] }); setOpen(false); }
+  });
+  const deleteMutation = useMutation({
+    mutationFn: insurersApi.delete,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['insurers'] }),
   });
 
   const openCreate = () => { setEditing(null); setForm({ name: '', code: '', licenseNo: '', address: '', phone: '', email: '' }); setOpen(true); };
@@ -52,7 +56,19 @@ export function InsurerPage() {
                 <td className="px-4 py-4 text-sm text-gray-500">{i.email ?? '-'}</td>
                 <td className="px-4 py-4 text-sm text-gray-500">{i.phone ?? '-'}</td>
                 <td className="px-4 py-4"><Badge status={i.isActive ? 'Active' : 'Inactive'} /></td>
-                <td className="px-4 py-4"><button onClick={() => openEdit(i)} className="text-gray-400 hover:text-primary-600"><Pencil className="h-4 w-4" /></button></td>
+                <td className="px-4 py-4">
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => openEdit(i)} className="text-gray-400 hover:text-primary-600"><Pencil className="h-4 w-4" /></button>
+                    <button
+                      onClick={() => {
+                        if (window.confirm(`Delete insurer ${i.name}?`)) deleteMutation.mutate(i.id);
+                      }}
+                      className="text-gray-400 hover:text-red-600"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </td>
               </tr>
             ))}
             {!insurers?.length && <tr><td colSpan={6} className="px-6 py-8 text-center text-sm text-gray-400">No insurers found</td></tr>}

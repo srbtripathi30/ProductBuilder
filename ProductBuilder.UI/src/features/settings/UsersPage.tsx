@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Pencil, Shield, AlertCircle } from 'lucide-react';
+import { Plus, Pencil, Shield, AlertCircle, Trash2 } from 'lucide-react';
 import { usersApi } from '../../api/stakeholders.api';
 import { useAuth } from '../../store/AuthContext';
 import { Button } from '../../components/ui/Button';
@@ -68,6 +68,10 @@ export function UsersPage() {
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: object }) => usersApi.update(id, data),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['users'] }); setOpen(false); },
+  });
+  const deleteMutation = useMutation({
+    mutationFn: usersApi.delete,
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['users'] }); },
   });
 
   const openCreate = () => {
@@ -162,9 +166,21 @@ export function UsersPage() {
                 </td>
                 <td className="px-4 py-4 text-sm text-gray-400">{formatDate(u.createdAt)}</td>
                 <td className="px-4 py-4">
-                  <button onClick={() => openEdit(u)} className="text-gray-400 hover:text-primary-600 transition-colors">
-                    <Pencil className="h-4 w-4" />
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => openEdit(u)} className="text-gray-400 hover:text-primary-600 transition-colors">
+                      <Pencil className="h-4 w-4" />
+                    </button>
+                    {!isSelf(u) && (
+                      <button
+                        onClick={() => {
+                          if (window.confirm(`Delete user ${u.firstName} ${u.lastName}?`)) deleteMutation.mutate(u.id);
+                        }}
+                        className="text-gray-400 hover:text-red-600 transition-colors"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}

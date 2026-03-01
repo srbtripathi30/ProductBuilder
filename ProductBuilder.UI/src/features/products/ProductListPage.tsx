@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Eye } from 'lucide-react';
+import { Plus, Eye, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { productsApi } from '../../api/products.api';
 import { lobApi } from '../../api/lob.api';
@@ -25,6 +25,10 @@ export function ProductListPage() {
   const createMutation = useMutation({
     mutationFn: productsApi.create,
     onSuccess: (p: any) => { qc.invalidateQueries({ queryKey: ['products'] }); setOpen(false); navigate(`/products/${p.id}`); }
+  });
+  const deleteMutation = useMutation({
+    mutationFn: productsApi.delete,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['products'] }),
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -58,9 +62,19 @@ export function ProductListPage() {
                 <td className="px-4 py-4"><Badge status={p.status} /></td>
                 <td className="px-4 py-4 text-sm text-gray-500">{formatDate(p.effectiveDate)}</td>
                 <td className="px-4 py-4">
-                  <button onClick={() => navigate(`/products/${p.id}`)} className="text-primary-600 hover:text-primary-800">
-                    <Eye className="h-4 w-4" />
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => navigate(`/products/${p.id}`)} className="text-primary-600 hover:text-primary-800">
+                      <Eye className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (window.confirm(`Delete product ${p.name}?`)) deleteMutation.mutate(p.id);
+                      }}
+                      className="text-gray-400 hover:text-red-600"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

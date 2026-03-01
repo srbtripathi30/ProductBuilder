@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Pencil } from 'lucide-react';
+import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { brokersApi, usersApi, insurersApi } from '../../api/stakeholders.api';
 import { Button } from '../../components/ui/Button';
 import { Modal } from '../../components/ui/Modal';
@@ -38,6 +38,10 @@ export function BrokersPage() {
     mutationFn: ({ id, data }: { id: string; data: object }) => brokersApi.update(id, data),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['brokers'] }); setOpen(false); },
   });
+  const deleteMutation = useMutation({
+    mutationFn: brokersApi.delete,
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['brokers'] }); },
+  });
 
   const openCreate = () => {
     setEditing(null);
@@ -71,6 +75,11 @@ export function BrokersPage() {
     if (editing) updateMutation.mutate({ id: editing.id, data: payload });
     else createMutation.mutate(payload);
   };
+
+  const brokerUserIds = new Set((brokers ?? []).map(b => b.userId));
+  const availableUsers = (users ?? []).filter(
+    u => u.isActive && u.roleName === 'Broker' && !brokerUserIds.has(u.id)
+  );
 
   if (isLoading) return <PageSpinner />;
 
@@ -106,9 +115,19 @@ export function BrokersPage() {
                 <td className="px-4 py-4 text-sm text-gray-700">{b.commissionRate != null ? `${b.commissionRate}%` : '-'}</td>
                 <td className="px-4 py-4"><Badge status={b.isActive ? 'Active' : 'Inactive'} /></td>
                 <td className="px-4 py-4">
-                  <button onClick={() => openEdit(b)} className="text-gray-400 hover:text-primary-600 transition-colors">
-                    <Pencil className="h-4 w-4" />
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => openEdit(b)} className="text-gray-400 hover:text-primary-600 transition-colors">
+                      <Pencil className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (window.confirm(`Delete broker ${b.companyName}?`)) deleteMutation.mutate(b.id);
+                      }}
+                      className="text-gray-400 hover:text-red-600 transition-colors"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -124,7 +143,7 @@ export function BrokersPage() {
           {!editing ? (
             <Select label="User" value={form.userId} onChange={e => setForm(f => ({ ...f, userId: e.target.value }))} required>
               <option value="">Select a user</option>
-              {users?.map(u => (
+              {availableUsers.map(u => (
                 <option key={u.id} value={u.id}>{u.firstName} {u.lastName} ({u.email})</option>
               ))}
             </Select>

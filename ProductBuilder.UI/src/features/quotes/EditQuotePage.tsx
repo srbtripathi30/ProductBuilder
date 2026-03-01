@@ -4,6 +4,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { ArrowLeft, Save } from 'lucide-react';
 import { quotesApi } from '../../api/quotes.api';
 import { productsApi } from '../../api/products.api';
+import { brokersApi, underwritersApi } from '../../api/stakeholders.api';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
@@ -36,8 +37,18 @@ export function EditQuotePage() {
     queryFn: () => productsApi.getCoverages(quote!.productId),
     enabled: !!quote?.productId,
   });
+  const { data: brokers } = useQuery({
+    queryKey: ['brokers'],
+    queryFn: brokersApi.getAll,
+  });
+  const { data: underwriters } = useQuery({
+    queryKey: ['underwriters'],
+    queryFn: underwritersApi.getAll,
+  });
 
   const [details, setDetails] = useState({
+    brokerId: '',
+    underwriterId: '',
     insuredName: '', insuredEmail: '', insuredPhone: '',
     currency: 'USD', validUntil: '', notes: '',
   });
@@ -47,6 +58,8 @@ export function EditQuotePage() {
   useEffect(() => {
     if (!quote || !coverages || initialized) return;
     setDetails({
+      brokerId: quote.brokerId ?? '',
+      underwriterId: quote.underwriterId ?? '',
       insuredName: quote.insuredName,
       insuredEmail: quote.insuredEmail ?? '',
       insuredPhone: quote.insuredPhone ?? '',
@@ -86,6 +99,8 @@ export function EditQuotePage() {
 
   const handleSave = () => {
     saveMutation.mutate({
+      brokerId: details.brokerId || undefined,
+      underwriterId: details.underwriterId || undefined,
       insuredName: details.insuredName,
       insuredEmail: details.insuredEmail || undefined,
       insuredPhone: details.insuredPhone || undefined,
@@ -130,6 +145,18 @@ export function EditQuotePage() {
       <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
         <h2 className="font-semibold text-gray-900 mb-4">Insured Details</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Select label="Broker" value={details.brokerId} onChange={e => setDetails(d => ({ ...d, brokerId: e.target.value }))}>
+            <option value="">Select broker (optional)…</option>
+            {brokers?.filter(b => b.isActive).map(b => (
+              <option key={b.id} value={b.id}>{b.companyName}</option>
+            ))}
+          </Select>
+          <Select label="Underwriter" value={details.underwriterId} onChange={e => setDetails(d => ({ ...d, underwriterId: e.target.value }))}>
+            <option value="">Select underwriter (optional)…</option>
+            {underwriters?.map(u => (
+              <option key={u.id} value={u.id}>{u.userName}</option>
+            ))}
+          </Select>
           <Input label="Insured Name" value={details.insuredName} onChange={e => setDetails(d => ({ ...d, insuredName: e.target.value }))} required />
           <Input label="Email" type="email" value={details.insuredEmail} onChange={e => setDetails(d => ({ ...d, insuredEmail: e.target.value }))} />
           <Input label="Phone" value={details.insuredPhone} onChange={e => setDetails(d => ({ ...d, insuredPhone: e.target.value }))} />

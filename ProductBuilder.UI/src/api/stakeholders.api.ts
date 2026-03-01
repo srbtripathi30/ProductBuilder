@@ -13,12 +13,14 @@ export const underwritersApi = {
   getAll: () => apiClient.get<UnderwriterDto[]>('/underwriters').then(r => r.data),
   create: (data: object) => apiClient.post<UnderwriterDto>('/underwriters', data).then(r => r.data),
   update: (id: string, data: object) => apiClient.put<UnderwriterDto>(`/underwriters/${id}`, data).then(r => r.data),
+  delete: (id: string) => apiClient.delete(`/underwriters/${id}`),
 };
 
 export const brokersApi = {
   getAll: () => apiClient.get<BrokerDto[]>('/brokers').then(r => r.data),
   create: (data: object) => apiClient.post<BrokerDto>('/brokers', data).then(r => r.data),
   update: (id: string, data: object) => apiClient.put<BrokerDto>(`/brokers/${id}`, data).then(r => r.data),
+  delete: (id: string) => apiClient.delete(`/brokers/${id}`),
 };
 
 export const usersApi = {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Pencil } from 'lucide-react';
+import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { underwritersApi, usersApi } from '../../api/stakeholders.api';
 import { Button } from '../../components/ui/Button';
 import { Modal } from '../../components/ui/Modal';
@@ -35,6 +35,10 @@ export function UnderwritersPage() {
     mutationFn: ({ id, data }: { id: string; data: object }) => underwritersApi.update(id, data),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['underwriters'] }); setOpen(false); },
   });
+  const deleteMutation = useMutation({
+    mutationFn: underwritersApi.delete,
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['underwriters'] }); },
+  });
 
   const openCreate = () => {
     setEditing(null);
@@ -56,6 +60,11 @@ export function UnderwritersPage() {
       createMutation.mutate(form);
     }
   };
+
+  const underwriterUserIds = new Set((underwriters ?? []).map(u => u.userId));
+  const availableUsers = (users ?? []).filter(
+    u => u.isActive && u.roleName === 'Underwriter' && !underwriterUserIds.has(u.id)
+  );
 
   if (isLoading) return <PageSpinner />;
 
@@ -88,9 +97,19 @@ export function UnderwritersPage() {
                 <td className="px-4 py-4 text-sm text-gray-700">{u.authorityLimit != null ? formatCurrency(u.authorityLimit) : '-'}</td>
                 <td className="px-4 py-4 text-sm text-gray-400">{formatDate(u.createdAt)}</td>
                 <td className="px-4 py-4">
-                  <button onClick={() => openEdit(u)} className="text-gray-400 hover:text-primary-600 transition-colors">
-                    <Pencil className="h-4 w-4" />
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => openEdit(u)} className="text-gray-400 hover:text-primary-600 transition-colors">
+                      <Pencil className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (window.confirm(`Delete underwriter ${u.userName}?`)) deleteMutation.mutate(u.id);
+                      }}
+                      className="text-gray-400 hover:text-red-600 transition-colors"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -106,7 +125,7 @@ export function UnderwritersPage() {
           {!editing ? (
             <Select label="User" value={form.userId} onChange={e => setForm(f => ({ ...f, userId: e.target.value }))} required>
               <option value="">Select a user</option>
-              {users?.map(u => (
+              {availableUsers.map(u => (
                 <option key={u.id} value={u.id}>{u.firstName} {u.lastName} ({u.email})</option>
               ))}
             </Select>
