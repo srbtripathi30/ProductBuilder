@@ -72,6 +72,10 @@ export function UsersPage() {
   const deleteMutation = useMutation({
     mutationFn: usersApi.delete,
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['users'] }); },
+    onError: (err: unknown) => {
+      const message = (err as any)?.response?.data?.message ?? 'Failed to delete user';
+      window.alert(message);
+    },
   });
 
   const openCreate = () => {
@@ -101,6 +105,7 @@ export function UsersPage() {
   };
 
   const isSelf = (u: UserDetailDto) => u.email === currentUser?.email;
+  const visibleUsers = (users ?? []).filter(u => u.isActive);
   const activeError = editing ? updateMutation.error : createMutation.error;
 
   if (isLoading) return <PageSpinner />;
@@ -145,7 +150,7 @@ export function UsersPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {users?.map(u => (
+            {visibleUsers.map(u => (
               <tr key={u.id} className="hover:bg-gray-50">
                 <td className="px-4 py-4">
                   <div className="flex items-center gap-2">
@@ -184,7 +189,7 @@ export function UsersPage() {
                 </td>
               </tr>
             ))}
-            {!users?.length && (
+            {!visibleUsers.length && (
               <tr><td colSpan={6} className="px-6 py-8 text-center text-sm text-gray-400">No users found</td></tr>
             )}
           </tbody>

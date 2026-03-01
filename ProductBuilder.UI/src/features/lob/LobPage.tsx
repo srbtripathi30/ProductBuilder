@@ -26,7 +26,11 @@ export function LobPage() {
   });
   const deleteMutation = useMutation({
     mutationFn: lobApi.delete,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['lobs'] })
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['lobs'] }),
+    onError: (err: unknown) => {
+      const message = (err as any)?.response?.data?.message ?? 'Failed to delete LOB';
+      window.alert(message);
+    },
   });
 
   const openCreate = () => { setEditing(null); setForm({ name: '', code: '', description: '' }); setOpen(true); };
@@ -39,6 +43,7 @@ export function LobPage() {
   };
 
   if (isLoading) return <PageSpinner />;
+  const visibleLobs = (lobs ?? []).filter(l => l.isActive);
 
   return (
     <div className="space-y-6">
@@ -56,7 +61,7 @@ export function LobPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {lobs?.map(lob => (
+            {visibleLobs.map(lob => (
               <tr key={lob.id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 text-sm font-mono font-medium text-gray-900">{lob.code}</td>
                 <td className="px-6 py-4 text-sm font-medium text-gray-900">{lob.name}</td>
@@ -70,7 +75,7 @@ export function LobPage() {
                 </td>
               </tr>
             ))}
-            {!lobs?.length && <tr><td colSpan={5} className="px-6 py-8 text-center text-sm text-gray-400">No lines of business found</td></tr>}
+            {!visibleLobs.length && <tr><td colSpan={5} className="px-6 py-8 text-center text-sm text-gray-400">No lines of business found</td></tr>}
           </tbody>
         </table>
       </div>

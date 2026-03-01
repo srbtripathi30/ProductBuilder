@@ -92,6 +92,10 @@ export function EditQuotePage() {
       try { await quotesApi.calculate(quoteId!); } catch { /* best effort */ }
       navigate(`/quotes/${quoteId}`);
     },
+    onError: (err: unknown) => {
+      const message = (err as any)?.response?.data?.message ?? 'Failed to save quote';
+      window.alert(message);
+    },
   });
 
   const updateCover = (coverId: string, patch: Partial<CoverInput>) =>

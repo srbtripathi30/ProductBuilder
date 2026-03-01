@@ -41,6 +41,10 @@ export function BrokersPage() {
   const deleteMutation = useMutation({
     mutationFn: brokersApi.delete,
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['brokers'] }); },
+    onError: (err: unknown) => {
+      const message = (err as any)?.response?.data?.message ?? 'Failed to delete broker';
+      window.alert(message);
+    },
   });
 
   const openCreate = () => {

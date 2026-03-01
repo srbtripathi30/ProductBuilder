@@ -29,6 +29,10 @@ export function ProductListPage() {
   const deleteMutation = useMutation({
     mutationFn: productsApi.delete,
     onSuccess: () => qc.invalidateQueries({ queryKey: ['products'] }),
+    onError: (err: unknown) => {
+      const message = (err as any)?.response?.data?.message ?? 'Failed to delete product';
+      window.alert(message);
+    },
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -37,6 +41,7 @@ export function ProductListPage() {
   };
 
   if (isLoading) return <PageSpinner />;
+  const visibleProducts = (products ?? []).filter(p => p.status !== 'Archived');
 
   return (
     <div className="space-y-6">
@@ -52,7 +57,7 @@ export function ProductListPage() {
             ))}</tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {products?.map(p => (
+            {visibleProducts.map(p => (
               <tr key={p.id} className="hover:bg-gray-50">
                 <td className="px-4 py-4 text-sm font-mono font-medium text-gray-900">{p.code}</td>
                 <td className="px-4 py-4 text-sm font-medium text-gray-900">{p.name}</td>
@@ -78,7 +83,7 @@ export function ProductListPage() {
                 </td>
               </tr>
             ))}
-            {!products?.length && <tr><td colSpan={8} className="px-6 py-8 text-center text-sm text-gray-400">No products found. Create your first product.</td></tr>}
+            {!visibleProducts.length && <tr><td colSpan={8} className="px-6 py-8 text-center text-sm text-gray-400">No products found. Create your first product.</td></tr>}
           </tbody>
         </table>
       </div>

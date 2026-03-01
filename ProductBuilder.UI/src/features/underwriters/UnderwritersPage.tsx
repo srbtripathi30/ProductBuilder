@@ -38,6 +38,10 @@ export function UnderwritersPage() {
   const deleteMutation = useMutation({
     mutationFn: underwritersApi.delete,
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['underwriters'] }); },
+    onError: (err: unknown) => {
+      const message = (err as any)?.response?.data?.message ?? 'Failed to delete underwriter';
+      window.alert(message);
+    },
   });
 
   const openCreate = () => {
