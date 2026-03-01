@@ -7,6 +7,7 @@ import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { Modal } from '../../components/ui/Modal';
 import { Input } from '../../components/ui/Input';
+import { AmountInput } from '../../components/ui/AmountInput';
 import { Select } from '../../components/ui/Select';
 import { PageSpinner } from '../../components/ui/Spinner';
 import { formatDate, formatCurrency } from '../../utils/formatters';
@@ -295,9 +296,9 @@ function CoverFinancialPanel({ coverId }: { coverId: string }) {
               <option value="">Select type</option>
               {['PerOccurrence', 'Aggregate', 'PerItem'].map(t => <option key={t}>{t}</option>)}
             </Select>
-            <Input label="Min Amount" type="number" value={String(form.minAmount ?? 0)} onChange={e => setForm(f => ({ ...f, minAmount: parseFloat(e.target.value) }))} required />
-            <Input label="Max Amount" type="number" value={String(form.maxAmount ?? '')} onChange={e => setForm(f => ({ ...f, maxAmount: parseFloat(e.target.value) }))} required />
-            <Input label="Default Amount" type="number" value={String(form.defaultAmount ?? '')} onChange={e => setForm(f => ({ ...f, defaultAmount: parseFloat(e.target.value) }))} required />
+            <AmountInput label="Min Amount" value={form.minAmount ?? 0} onChange={v => setForm(f => ({ ...f, minAmount: v }))} required />
+            <AmountInput label="Max Amount" value={form.maxAmount} onChange={v => setForm(f => ({ ...f, maxAmount: v }))} required />
+            <AmountInput label="Default Amount" value={form.defaultAmount} onChange={v => setForm(f => ({ ...f, defaultAmount: v }))} required />
             <Input label="Currency" value={String(form.currency ?? 'USD')} onChange={e => setForm(f => ({ ...f, currency: e.target.value }))} />
           </>}
           {tab === 'deductibles' && <>
@@ -305,9 +306,9 @@ function CoverFinancialPanel({ coverId }: { coverId: string }) {
               <option value="">Select type</option>
               {['Fixed', 'Percentage', 'Franchise'].map(t => <option key={t}>{t}</option>)}
             </Select>
-            <Input label="Min Amount" type="number" value={String(form.minAmount ?? 0)} onChange={e => setForm(f => ({ ...f, minAmount: parseFloat(e.target.value) }))} required />
-            <Input label="Max Amount" type="number" value={String(form.maxAmount ?? '')} onChange={e => setForm(f => ({ ...f, maxAmount: parseFloat(e.target.value) }))} required />
-            <Input label="Default Amount" type="number" value={String(form.defaultAmount ?? '')} onChange={e => setForm(f => ({ ...f, defaultAmount: parseFloat(e.target.value) }))} required />
+            <AmountInput label="Min Amount" value={form.minAmount ?? 0} onChange={v => setForm(f => ({ ...f, minAmount: v }))} required />
+            <AmountInput label="Max Amount" value={form.maxAmount} onChange={v => setForm(f => ({ ...f, maxAmount: v }))} required />
+            <AmountInput label="Default Amount" value={form.defaultAmount} onChange={v => setForm(f => ({ ...f, defaultAmount: v }))} required />
           </>}
           {tab === 'premiums' && <>
             <Select label="Premium Type" value={String(form.premiumType ?? '')} onChange={e => setForm(f => ({ ...f, premiumType: e.target.value }))} required>
@@ -315,12 +316,12 @@ function CoverFinancialPanel({ coverId }: { coverId: string }) {
               {['Flat', 'RateBased', 'PerUnit'].map(t => <option key={t}>{t}</option>)}
             </Select>
             {form.premiumType === 'Flat'
-              ? <Input label="Flat Amount" type="number" value={String(form.flatAmount ?? '')} onChange={e => setForm(f => ({ ...f, flatAmount: parseFloat(e.target.value) }))} required />
+              ? <AmountInput label="Flat Amount" value={form.flatAmount} onChange={v => setForm(f => ({ ...f, flatAmount: v }))} required />
               : <>
                 <Input label="Base Rate" type="number" step="0.000001" value={String(form.baseRate ?? '')} onChange={e => setForm(f => ({ ...f, baseRate: parseFloat(e.target.value) }))} required />
                 <Input label="Calculation Basis" value={String(form.calculationBasis ?? '')} onChange={e => setForm(f => ({ ...f, calculationBasis: e.target.value }))} placeholder="SumInsured, Revenue…" required />
               </>}
-            <Input label="Min Premium" type="number" value={String(form.minPremium ?? '')} onChange={e => setForm(f => ({ ...f, minPremium: parseFloat(e.target.value) }))} />
+            <AmountInput label="Min Premium" value={form.minPremium} onChange={v => setForm(f => ({ ...f, minPremium: v }))} />
           </>}
           {tab === 'modifiers' && <>
             <Input label="Name" value={String(form.name ?? '')} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required />
