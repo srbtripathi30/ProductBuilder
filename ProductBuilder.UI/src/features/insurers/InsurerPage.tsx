@@ -48,27 +48,27 @@ export function InsurerPage() {
         <div><h1 className="text-2xl font-bold text-gray-900">Insurers</h1><p className="text-sm text-gray-500">Manage insurance companies</p></div>
         <Button onClick={openCreate}><Plus className="mr-2 h-4 w-4" />New Insurer</Button>
       </div>
-      <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>{['Code', 'Name', 'Email', 'Phone', 'Status', ''].map(h => <th key={h} className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{h}</th>)}</tr>
+      <div className="rounded-xl border border-gray-100 bg-white shadow-card overflow-hidden">
+        <table className="min-w-full divide-y divide-gray-100">
+          <thead className="bg-slate-50">
+            <tr>{['Code', 'Name', 'Email', 'Phone', 'Status', ''].map(h => <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{h}</th>)}</tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="divide-y divide-gray-50">
             {visibleInsurers.map(i => (
-              <tr key={i.id} className="hover:bg-gray-50">
-                <td className="px-4 py-4 text-sm font-mono font-medium">{i.code}</td>
-                <td className="px-4 py-4 text-sm font-medium text-gray-900">{i.name}</td>
-                <td className="px-4 py-4 text-sm text-gray-500">{i.email ?? '-'}</td>
-                <td className="px-4 py-4 text-sm text-gray-500">{i.phone ?? '-'}</td>
-                <td className="px-4 py-4"><Badge status={i.isActive ? 'Active' : 'Inactive'} /></td>
-                <td className="px-4 py-4">
-                  <div className="flex items-center gap-2">
-                    <button onClick={() => openEdit(i)} className="text-gray-400 hover:text-primary-600"><Pencil className="h-4 w-4" /></button>
+              <tr key={i.id} className="hover:bg-slate-50 transition-colors">
+                <td className="px-4 py-3.5 text-xs font-mono font-semibold text-gray-600 tracking-wide">{i.code}</td>
+                <td className="px-4 py-3.5 text-sm font-medium text-gray-900">{i.name}</td>
+                <td className="px-4 py-3.5 text-sm text-gray-500">{i.email ?? '-'}</td>
+                <td className="px-4 py-3.5 text-sm text-gray-500">{i.phone ?? '-'}</td>
+                <td className="px-4 py-3.5"><Badge status={i.isActive ? 'Active' : 'Inactive'} /></td>
+                <td className="px-4 py-3.5">
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => openEdit(i)} className="rounded p-1 text-gray-400 transition-colors hover:bg-primary-50 hover:text-primary-600"><Pencil className="h-4 w-4" /></button>
                     <button
                       onClick={() => {
                         if (window.confirm(`Delete insurer ${i.name}?`)) deleteMutation.mutate(i.id);
                       }}
-                      className="text-gray-400 hover:text-red-600"
+                      className="rounded p-1 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
@@ -76,7 +76,7 @@ export function InsurerPage() {
                 </td>
               </tr>
             ))}
-            {!visibleInsurers.length && <tr><td colSpan={6} className="px-6 py-8 text-center text-sm text-gray-400">No insurers found</td></tr>}
+            {!visibleInsurers.length && <tr><td colSpan={6} className="px-6 py-10 text-center text-sm text-gray-400">No insurers found</td></tr>}
           </tbody>
         </table>
       </div>

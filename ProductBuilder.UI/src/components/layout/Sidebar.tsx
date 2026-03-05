@@ -27,18 +27,26 @@ export function Sidebar() {
   const visible = navItems.filter(item => !item.roles || (user && item.roles.includes(user.role)));
 
   return (
-    <aside className="flex h-screen w-64 flex-col border-r border-gray-200 bg-white">
-      <div className="flex h-16 items-center px-6 border-b border-gray-200">
-        <span className="text-xl font-bold text-primary-700">ProductBuilder</span>
+    <aside className="flex h-screen w-64 flex-col bg-slate-900">
+      <div className="flex h-16 items-center gap-3 px-5">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-500 shadow-sm">
+          <span className="text-sm font-bold tracking-tight text-white">PB</span>
+        </div>
+        <span className="text-sm font-semibold text-white">ProductBuilder</span>
       </div>
-      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
+
+      <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-0.5">
         {visible.map(item => (
           <NavLink
             key={item.to}
             to={item.to}
             className={({ isActive }) =>
-              cn('flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-                isActive ? 'bg-primary-50 text-primary-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900')
+              cn(
+                'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150',
+                isActive
+                  ? 'bg-primary-600 text-white shadow-sm'
+                  : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'
+              )
             }
           >
             {item.icon}
@@ -46,6 +54,10 @@ export function Sidebar() {
           </NavLink>
         ))}
       </nav>
+
+      <div className="border-t border-slate-800 px-4 py-3">
+        <p className="text-xs text-slate-600">Insurance Underwriting Platform</p>
+      </div>
     </aside>
   );
 }

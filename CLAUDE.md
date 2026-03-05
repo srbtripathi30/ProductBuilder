@@ -1,6 +1,6 @@
 # CLAUDE.md — ProductBuilder Project Instructions
 
-> Last modified: 2026-03-01
+> Last modified: 2026-03-04
 
 ## Project Overview
 Insurance Product Builder — a full-stack underwriting platform.
@@ -70,7 +70,10 @@ ProductBuilder/
 ### Frontend conventions
 - API functions live in `src/api/<resource>.api.ts`, all use the shared Axios client
 - UI primitives live in `src/components/ui/` — reuse before creating new ones
-- Use `primary-*` Tailwind classes for brand color (defined in `tailwind.config.js`)
+- Use `primary-*` Tailwind classes for brand color — primary is **indigo** (`#4f46e5` / `#6366f1`), defined in `tailwind.config.js`
+- Sidebar uses `bg-slate-900` dark theme with `bg-primary-600` active state; do NOT revert to white sidebar
+- Tables use `border-gray-100`, `bg-slate-50` thead, `divide-gray-50` rows, `shadow-card` — not the old `border-gray-200`/`shadow-sm` pattern
+- Inter font is loaded via Google Fonts in `index.css`; body background is `bg-slate-50`
 - Auth state comes from `AuthContext` — do not duplicate auth logic elsewhere
 - Use `AmountInput` (not `<Input type="number">`) for all monetary amount fields — it provides k/m/l shortcut expansion (thousands / millions / lakhs) on Tab or blur; its `onChange` receives a `number` directly
 - Delete actions use `window.confirm` for confirmation and a `Trash2` icon button (`hover:text-red-600`); hidden for the current user on their own record
