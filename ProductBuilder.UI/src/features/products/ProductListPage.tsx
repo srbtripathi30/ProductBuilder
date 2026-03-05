@@ -49,33 +49,33 @@ export function ProductListPage() {
         <div><h1 className="text-2xl font-bold text-gray-900">Products</h1><p className="text-sm text-gray-500">Manage insurance products</p></div>
         <Button onClick={() => setOpen(true)}><Plus className="mr-2 h-4 w-4" />New Product</Button>
       </div>
-      <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+      <div className="rounded-xl border border-gray-100 bg-white shadow-card overflow-hidden">
+        <table className="min-w-full divide-y divide-gray-100">
+          <thead className="bg-slate-50">
             <tr>{['Code', 'Name', 'LOB', 'Insurer', 'Version', 'Status', 'Effective', ''].map(h => (
-              <th key={h} className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{h}</th>
+              <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{h}</th>
             ))}</tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="divide-y divide-gray-50">
             {visibleProducts.map(p => (
-              <tr key={p.id} className="hover:bg-gray-50">
-                <td className="px-4 py-4 text-sm font-mono font-medium text-gray-900">{p.code}</td>
-                <td className="px-4 py-4 text-sm font-medium text-gray-900">{p.name}</td>
-                <td className="px-4 py-4 text-sm text-gray-500">{p.lobName}</td>
-                <td className="px-4 py-4 text-sm text-gray-500">{p.insurerName}</td>
-                <td className="px-4 py-4 text-sm text-gray-500">{p.version}</td>
-                <td className="px-4 py-4"><Badge status={p.status} /></td>
-                <td className="px-4 py-4 text-sm text-gray-500">{formatDate(p.effectiveDate)}</td>
-                <td className="px-4 py-4">
+              <tr key={p.id} className="hover:bg-slate-50 transition-colors">
+                <td className="px-4 py-3.5 text-xs font-mono font-semibold text-gray-600 tracking-wide">{p.code}</td>
+                <td className="px-4 py-3.5 text-sm font-medium text-gray-900">{p.name}</td>
+                <td className="px-4 py-3.5 text-sm text-gray-500">{p.lobName}</td>
+                <td className="px-4 py-3.5 text-sm text-gray-500">{p.insurerName}</td>
+                <td className="px-4 py-3.5 text-sm text-gray-500">{p.version}</td>
+                <td className="px-4 py-3.5"><Badge status={p.status} /></td>
+                <td className="px-4 py-3.5 text-sm text-gray-500">{formatDate(p.effectiveDate)}</td>
+                <td className="px-4 py-3.5">
                   <div className="flex items-center gap-2">
-                    <button onClick={() => navigate(`/products/${p.id}`)} className="text-primary-600 hover:text-primary-800">
+                    <button onClick={() => navigate(`/products/${p.id}`)} className="rounded p-1 text-gray-400 transition-colors hover:bg-primary-50 hover:text-primary-600">
                       <Eye className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => {
                         if (window.confirm(`Delete product ${p.name}?`)) deleteMutation.mutate(p.id);
                       }}
-                      className="text-gray-400 hover:text-red-600"
+                      className="rounded p-1 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
@@ -83,7 +83,7 @@ export function ProductListPage() {
                 </td>
               </tr>
             ))}
-            {!visibleProducts.length && <tr><td colSpan={8} className="px-6 py-8 text-center text-sm text-gray-400">No products found. Create your first product.</td></tr>}
+            {!visibleProducts.length && <tr><td colSpan={8} className="px-6 py-10 text-center text-sm text-gray-400">No products found. Create your first product.</td></tr>}
           </tbody>
         </table>
       </div>

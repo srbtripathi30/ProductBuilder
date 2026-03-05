@@ -97,37 +97,37 @@ export function BrokersPage() {
         <Button onClick={openCreate}><Plus className="mr-2 h-4 w-4" />New Broker</Button>
       </div>
 
-      <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+      <div className="rounded-xl border border-gray-100 bg-white shadow-card overflow-hidden">
+        <table className="min-w-full divide-y divide-gray-100">
+          <thead className="bg-slate-50">
             <tr>
               {['Company', 'Contact', 'Insurer', 'License No', 'Commission', 'Status', ''].map(h => (
-                <th key={h} className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{h}</th>
+                <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{h}</th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="divide-y divide-gray-50">
             {brokers?.map(b => (
-              <tr key={b.id} className="hover:bg-gray-50">
-                <td className="px-4 py-4 text-sm font-medium text-gray-900">{b.companyName}</td>
-                <td className="px-4 py-4">
+              <tr key={b.id} className="hover:bg-slate-50 transition-colors">
+                <td className="px-4 py-3.5 text-sm font-medium text-gray-900">{b.companyName}</td>
+                <td className="px-4 py-3.5">
                   <p className="text-sm font-medium text-gray-900">{b.userName}</p>
                   <p className="text-xs text-gray-400">{b.userEmail}</p>
                 </td>
-                <td className="px-4 py-4 text-sm text-gray-500">{b.insurerName ?? '-'}</td>
-                <td className="px-4 py-4 text-sm font-mono text-gray-700">{b.licenseNo ?? '-'}</td>
-                <td className="px-4 py-4 text-sm text-gray-700">{b.commissionRate != null ? `${b.commissionRate}%` : '-'}</td>
-                <td className="px-4 py-4"><Badge status={b.isActive ? 'Active' : 'Inactive'} /></td>
-                <td className="px-4 py-4">
-                  <div className="flex items-center gap-2">
-                    <button onClick={() => openEdit(b)} className="text-gray-400 hover:text-primary-600 transition-colors">
+                <td className="px-4 py-3.5 text-sm text-gray-500">{b.insurerName ?? '-'}</td>
+                <td className="px-4 py-3.5 text-xs font-mono font-semibold text-gray-600 tracking-wide">{b.licenseNo ?? '-'}</td>
+                <td className="px-4 py-3.5 text-sm font-semibold text-gray-700">{b.commissionRate != null ? `${b.commissionRate}%` : '-'}</td>
+                <td className="px-4 py-3.5"><Badge status={b.isActive ? 'Active' : 'Inactive'} /></td>
+                <td className="px-4 py-3.5">
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => openEdit(b)} className="rounded p-1 text-gray-400 transition-colors hover:bg-primary-50 hover:text-primary-600">
                       <Pencil className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => {
                         if (window.confirm(`Delete broker ${b.companyName}?`)) deleteMutation.mutate(b.id);
                       }}
-                      className="text-gray-400 hover:text-red-600 transition-colors"
+                      className="rounded p-1 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
@@ -136,7 +136,7 @@ export function BrokersPage() {
               </tr>
             ))}
             {!brokers?.length && (
-              <tr><td colSpan={7} className="px-6 py-8 text-center text-sm text-gray-400">No brokers found</td></tr>
+              <tr><td colSpan={7} className="px-6 py-10 text-center text-sm text-gray-400">No brokers found</td></tr>
             )}
           </tbody>
         </table>
