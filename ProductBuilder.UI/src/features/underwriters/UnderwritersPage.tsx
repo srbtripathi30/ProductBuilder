@@ -7,6 +7,7 @@ import { Modal } from '../../components/ui/Modal';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
 import { AmountInput } from '../../components/ui/AmountInput';
+import { PageHeader } from '../../components/ui/PageHeader';
 import { PageSpinner } from '../../components/ui/Spinner';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 import type { UnderwriterDto } from '../../types';
@@ -74,13 +75,11 @@ export function UnderwritersPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Underwriters</h1>
-          <p className="text-sm text-gray-500">Manage underwriting staff and their authority limits</p>
-        </div>
-        <Button onClick={openCreate}><Plus className="mr-2 h-4 w-4" />New Underwriter</Button>
-      </div>
+      <PageHeader
+        title="Underwriters"
+        subtitle="Manage underwriting staff and their authority limits"
+        action={<Button onClick={openCreate}><Plus className="mr-2 h-4 w-4" />New Underwriter</Button>}
+      />
 
       <div className="rounded-xl border border-gray-100 bg-white shadow-card overflow-hidden">
         <table className="min-w-full divide-y divide-gray-100">
@@ -102,10 +101,11 @@ export function UnderwritersPage() {
                 <td className="px-4 py-3.5 text-sm text-gray-400">{formatDate(u.createdAt)}</td>
                 <td className="px-4 py-3.5">
                   <div className="flex items-center gap-1">
-                    <button onClick={() => openEdit(u)} className="rounded p-1 text-gray-400 transition-colors hover:bg-primary-50 hover:text-primary-600">
+                    <button aria-label={`Edit ${u.userName}`} onClick={() => openEdit(u)} className="rounded p-1 text-gray-400 transition-colors hover:bg-primary-50 hover:text-primary-600">
                       <Pencil className="h-4 w-4" />
                     </button>
                     <button
+                      aria-label={`Delete ${u.userName}`}
                       onClick={() => {
                         if (window.confirm(`Delete underwriter ${u.userName}?`)) deleteMutation.mutate(u.id);
                       }}

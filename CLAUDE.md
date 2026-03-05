@@ -1,6 +1,6 @@
 # CLAUDE.md — ProductBuilder Project Instructions
 
-> Last modified: 2026-03-04
+> Last modified: 2026-03-04 (react-component refactor)
 
 ## Project Overview
 Insurance Product Builder — a full-stack underwriting platform.
@@ -75,6 +75,11 @@ ProductBuilder/
 - Tables use `border-gray-100`, `bg-slate-50` thead, `divide-gray-50` rows, `shadow-card` — not the old `border-gray-200`/`shadow-sm` pattern
 - Inter font is loaded via Google Fonts in `index.css`; body background is `bg-slate-50`
 - Auth state comes from `AuthContext` — do not duplicate auth logic elsewhere
+- Use `PageHeader` (`src/components/ui/PageHeader.tsx`) for all page title/subtitle/action-button headers — props: `title`, `subtitle?`, `action?`
+- All icon-only buttons MUST have `aria-label` — e.g. `aria-label={`Edit ${name}`}` or `aria-label="Close"`
+- All `<textarea>` elements must have an `id` and a matching `<label htmlFor={id}>`
+- All component prop interfaces must be named (e.g. `interface SpinnerProps`) — no inline `{ prop: type }` shapes on exported functions
+- `ErrorBoundary` (`src/components/ErrorBoundary.tsx`) wraps the `<Outlet />` in `MainLayout` — use it to wrap any async subtree that might error
 - Use `AmountInput` (not `<Input type="number">`) for all monetary amount fields — it provides k/m/l shortcut expansion (thousands / millions / lakhs) on Tab or blur; its `onChange` receives a `number` directly
 - Delete actions use `window.confirm` for confirmation and a `Trash2` icon button (`hover:text-red-600`); hidden for the current user on their own record
 - Underwriter/Broker create forms filter the user dropdown to only show active, correct-role, not-yet-assigned users
@@ -140,6 +145,8 @@ docker run -d --name productbuilder-postgres \
 | `ProductBuilder.API/src/ProductBuilder.Infrastructure/Services/PremiumCalculationService.cs` | Pricing logic |
 | `ProductBuilder.API/src/ProductBuilder.Infrastructure/Migrations/` | EF Core migrations |
 | `ProductBuilder.API/tests/ProductBuilder.Tests/Services/` | xUnit service tests |
+| `ProductBuilder.UI/src/components/ui/PageHeader.tsx` | Reusable page header (title, subtitle, action slot) — used on all list pages |
+| `ProductBuilder.UI/src/components/ErrorBoundary.tsx` | Class-based error boundary wrapping main layout outlet |
 | `ProductBuilder.UI/src/api/client.ts` | Axios instance + JWT interceptor + 401 refresh |
 | `ProductBuilder.UI/src/api/auth.api.ts` | login, refresh, logout, forgotPassword, resetPassword |
 | `ProductBuilder.UI/src/api/stakeholders.api.ts` | insurersApi, underwritersApi (+ delete), brokersApi (+ delete), usersApi |

@@ -6,6 +6,7 @@ import { quotesApi } from '../../api/quotes.api';
 import { insurersApi } from '../../api/stakeholders.api';
 import { PageSpinner } from '../../components/ui/Spinner';
 import { Badge } from '../../components/ui/Badge';
+import { PageHeader } from '../../components/ui/PageHeader';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 
 export function DashboardPage() {
@@ -45,10 +46,7 @@ export function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-sm text-gray-500">Insurance Product Builder Overview</p>
-      </div>
+      <PageHeader title="Dashboard" subtitle="Insurance Product Builder Overview" />
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map(stat => (

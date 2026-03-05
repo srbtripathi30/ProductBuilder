@@ -8,6 +8,7 @@ import { Modal } from '../../components/ui/Modal';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
 import { Badge } from '../../components/ui/Badge';
+import { PageHeader } from '../../components/ui/PageHeader';
 import { PageSpinner } from '../../components/ui/Spinner';
 import { formatDate } from '../../utils/formatters';
 import type { UserDetailDto } from '../../types';
@@ -113,10 +114,7 @@ export function UsersPage() {
   if (isError) {
     return (
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
-          <p className="text-sm text-gray-500">Manage system users and their roles</p>
-        </div>
+        <PageHeader title="User Management" subtitle="Manage system users and their roles" />
         <div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-6 text-red-700">
           <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
           <div>
@@ -132,13 +130,11 @@ export function UsersPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
-          <p className="text-sm text-gray-500">Manage system users and their roles</p>
-        </div>
-        <Button onClick={openCreate}><Plus className="mr-2 h-4 w-4" />New User</Button>
-      </div>
+      <PageHeader
+        title="User Management"
+        subtitle="Manage system users and their roles"
+        action={<Button onClick={openCreate}><Plus className="mr-2 h-4 w-4" />New User</Button>}
+      />
 
       <div className="rounded-xl border border-gray-100 bg-white shadow-card overflow-hidden">
         <table className="min-w-full divide-y divide-gray-100">
@@ -172,11 +168,12 @@ export function UsersPage() {
                 <td className="px-4 py-3.5 text-sm text-gray-400">{formatDate(u.createdAt)}</td>
                 <td className="px-4 py-3.5">
                   <div className="flex items-center gap-1">
-                    <button onClick={() => openEdit(u)} className="rounded p-1 text-gray-400 transition-colors hover:bg-primary-50 hover:text-primary-600">
+                    <button aria-label={`Edit ${u.firstName} ${u.lastName}`} onClick={() => openEdit(u)} className="rounded p-1 text-gray-400 transition-colors hover:bg-primary-50 hover:text-primary-600">
                       <Pencil className="h-4 w-4" />
                     </button>
                     {!isSelf(u) && (
                       <button
+                        aria-label={`Delete ${u.firstName} ${u.lastName}`}
                         onClick={() => {
                           if (window.confirm(`Delete user ${u.firstName} ${u.lastName}?`)) deleteMutation.mutate(u.id);
                         }}

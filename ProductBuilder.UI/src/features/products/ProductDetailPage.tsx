@@ -67,7 +67,7 @@ export function ProductDetailPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <button onClick={() => navigate('/products')} className="text-gray-400 hover:text-gray-600 transition-colors">
+        <button aria-label="Back to products" onClick={() => navigate('/products')} className="text-gray-400 hover:text-gray-600 transition-colors">
           <ArrowLeft className="h-5 w-5" />
         </button>
         <div className="flex-1">
@@ -130,6 +130,7 @@ export function ProductDetailPage() {
                 </div>
                 <span className="text-xs text-gray-400">{coverage.covers.length} cover{coverage.covers.length !== 1 ? 's' : ''}</span>
                 <button
+                  aria-label={`Delete coverage ${coverage.name}`}
                   onClick={e => { e.stopPropagation(); deleteCoverageMutation.mutate(coverage.id); }}
                   className="text-gray-300 hover:text-red-500 transition-colors ml-2"
                 >
@@ -213,7 +214,11 @@ export function ProductDetailPage() {
   );
 }
 
-function CoverFinancialPanel({ coverId }: { coverId: string }) {
+interface CoverFinancialPanelProps {
+  coverId: string;
+}
+
+function CoverFinancialPanel({ coverId }: CoverFinancialPanelProps) {
   const [tab, setTab] = useState<'limits' | 'deductibles' | 'premiums' | 'modifiers'>('limits');
   const qc = useQueryClient();
   const [addOpen, setAddOpen] = useState(false);

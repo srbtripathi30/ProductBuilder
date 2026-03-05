@@ -10,6 +10,7 @@ import { Badge } from '../../components/ui/Badge';
 import { Modal } from '../../components/ui/Modal';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
+import { PageHeader } from '../../components/ui/PageHeader';
 import { PageSpinner } from '../../components/ui/Spinner';
 import { formatDate } from '../../utils/formatters';
 
@@ -45,10 +46,11 @@ export function ProductListPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div><h1 className="text-2xl font-bold text-gray-900">Products</h1><p className="text-sm text-gray-500">Manage insurance products</p></div>
-        <Button onClick={() => setOpen(true)}><Plus className="mr-2 h-4 w-4" />New Product</Button>
-      </div>
+      <PageHeader
+        title="Products"
+        subtitle="Manage insurance products"
+        action={<Button onClick={() => setOpen(true)}><Plus className="mr-2 h-4 w-4" />New Product</Button>}
+      />
       <div className="rounded-xl border border-gray-100 bg-white shadow-card overflow-hidden">
         <table className="min-w-full divide-y divide-gray-100">
           <thead className="bg-slate-50">
@@ -68,10 +70,11 @@ export function ProductListPage() {
                 <td className="px-4 py-3.5 text-sm text-gray-500">{formatDate(p.effectiveDate)}</td>
                 <td className="px-4 py-3.5">
                   <div className="flex items-center gap-2">
-                    <button onClick={() => navigate(`/products/${p.id}`)} className="rounded p-1 text-gray-400 transition-colors hover:bg-primary-50 hover:text-primary-600">
+                    <button aria-label={`View ${p.name}`} onClick={() => navigate(`/products/${p.id}`)} className="rounded p-1 text-gray-400 transition-colors hover:bg-primary-50 hover:text-primary-600">
                       <Eye className="h-4 w-4" />
                     </button>
                     <button
+                      aria-label={`Delete ${p.name}`}
                       onClick={() => {
                         if (window.confirm(`Delete product ${p.name}?`)) deleteMutation.mutate(p.id);
                       }}
