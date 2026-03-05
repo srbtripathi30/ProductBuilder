@@ -199,9 +199,10 @@ export function QuoteWizard() {
         {/* Step 2 */}
         {step === 2 && (
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-gray-900">Notes</h2>
+            <label htmlFor="quote-notes" className="text-lg font-semibold text-gray-900">Notes</label>
             <p className="text-sm text-gray-500">Add any additional notes for this quote. Modifiers can be applied after creation.</p>
             <textarea
+              id="quote-notes"
               className="w-full rounded-lg border border-gray-300 p-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary-500"
               rows={5} placeholder="Enter any notes or special conditions…"
               value={quoteData.notes} onChange={e => setQuoteData(d => ({ ...d, notes: e.target.value }))}

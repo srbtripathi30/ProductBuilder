@@ -31,6 +31,7 @@ export function Header() {
         <div className="h-5 w-px bg-gray-200" />
         <button
           onClick={handleLogout}
+          aria-label="Sign out"
           className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-800"
         >
           <LogOut className="h-4 w-4" />

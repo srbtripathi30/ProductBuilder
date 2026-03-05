@@ -35,7 +35,7 @@ export function QuoteDetailPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <button onClick={() => navigate('/quotes')} className="text-gray-400 hover:text-gray-600 transition-colors">
+        <button aria-label="Back to quotes" onClick={() => navigate('/quotes')} className="text-gray-400 hover:text-gray-600 transition-colors">
           <ArrowLeft className="h-5 w-5" />
         </button>
         <div className="flex-1">

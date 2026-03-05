@@ -137,7 +137,7 @@ export function EditQuotePage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <button onClick={() => navigate(`/quotes/${quoteId}`)} className="text-gray-400 hover:text-gray-600 transition-colors">
+        <button aria-label="Back to quote" onClick={() => navigate(`/quotes/${quoteId}`)} className="text-gray-400 hover:text-gray-600 transition-colors">
           <ArrowLeft className="h-5 w-5" />
         </button>
         <div className="flex-1">
@@ -174,8 +174,9 @@ export function EditQuotePage() {
           <Input label="Valid Until" type="date" value={details.validUntil} onChange={e => setDetails(d => ({ ...d, validUntil: e.target.value }))} />
         </div>
         <div className="mt-4 space-y-1">
-          <label className="block text-sm font-medium text-gray-700">Notes</label>
+          <label htmlFor="edit-notes" className="block text-sm font-medium text-gray-700">Notes</label>
           <textarea
+            id="edit-notes"
             className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
             rows={3}
             value={details.notes}

@@ -7,6 +7,7 @@ import { Modal } from '../../components/ui/Modal';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
 import { Badge } from '../../components/ui/Badge';
+import { PageHeader } from '../../components/ui/PageHeader';
 import { PageSpinner } from '../../components/ui/Spinner';
 import { formatDate } from '../../utils/formatters';
 import type { BrokerDto } from '../../types';
@@ -89,13 +90,11 @@ export function BrokersPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Brokers</h1>
-          <p className="text-sm text-gray-500">Manage brokers and their commission rates</p>
-        </div>
-        <Button onClick={openCreate}><Plus className="mr-2 h-4 w-4" />New Broker</Button>
-      </div>
+      <PageHeader
+        title="Brokers"
+        subtitle="Manage brokers and their commission rates"
+        action={<Button onClick={openCreate}><Plus className="mr-2 h-4 w-4" />New Broker</Button>}
+      />
 
       <div className="rounded-xl border border-gray-100 bg-white shadow-card overflow-hidden">
         <table className="min-w-full divide-y divide-gray-100">
@@ -120,10 +119,11 @@ export function BrokersPage() {
                 <td className="px-4 py-3.5"><Badge status={b.isActive ? 'Active' : 'Inactive'} /></td>
                 <td className="px-4 py-3.5">
                   <div className="flex items-center gap-1">
-                    <button onClick={() => openEdit(b)} className="rounded p-1 text-gray-400 transition-colors hover:bg-primary-50 hover:text-primary-600">
+                    <button aria-label={`Edit ${b.companyName}`} onClick={() => openEdit(b)} className="rounded p-1 text-gray-400 transition-colors hover:bg-primary-50 hover:text-primary-600">
                       <Pencil className="h-4 w-4" />
                     </button>
                     <button
+                      aria-label={`Delete ${b.companyName}`}
                       onClick={() => {
                         if (window.confirm(`Delete broker ${b.companyName}?`)) deleteMutation.mutate(b.id);
                       }}
